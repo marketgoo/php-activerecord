@@ -682,7 +682,7 @@ class Model
 	 */
 	private function is_delegated($name, &$delegate)
 	{
-		if ($delegate['prefix'] != '')
+        if (is_array($delegate) && $delegate['prefix'] != '')
 			$name = substr($name,strlen($delegate['prefix'])+1);
 
 		if (is_array($delegate) && in_array($name,$delegate['delegate']))
@@ -1667,7 +1667,7 @@ class Model
 		}
 		$results = count($list);
 
-		if ($results != ($expected = count($values)))
+        if ($results != ($expected = count((array)$values)))
 		{
 			$class = get_called_class();
 			if (is_array($values))
