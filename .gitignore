@@ -1,6 +1,7 @@
 .project
 .buildpath
 .settings
+.phpunit.result.cache
 *.log
 *.db
 *.swp
