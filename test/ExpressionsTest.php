@@ -53,11 +53,10 @@ class ExpressionsTest extends SnakeCase_PHPUnit_Framework_TestCase
         $this->assert_equals('name=? and book=?', $c->to_s(false, $x));
     }
 
-    /**
-     * @expectedException ActiveRecord\ExpressionsException
-     */
     public function test_insufficient_variables()
     {
+        $this->expectException(ActiveRecord\ExpressionsException::class);
+
         $c = new Expressions(null, 'name=? and id=?', 'Tito');
         $c->to_s();
     }
@@ -143,8 +142,9 @@ class ExpressionsTest extends SnakeCase_PHPUnit_Framework_TestCase
         try {
             $conn = ConnectionManager::get_connection();
         } catch (DatabaseException $e) {
-            $this->mark_test_skipped('failed to connect. ' . $e->getMessage());
+             $this->mark_test_skipped('failed to connect. ' . $e->getMessage());
         }
+
         $a = new Expressions(null, 'name=?', "Tito's Guild");
         $a->set_connection($conn);
         $escaped = $conn->escape("Tito's Guild");
@@ -165,11 +165,10 @@ class ExpressionsTest extends SnakeCase_PHPUnit_Framework_TestCase
         $this->assert_equals(array('Tito',99), $a->values());
     }
 
-    /**
-     * @expectedException ActiveRecord\ExpressionsException
-     */
     public function test_bind_invalid_parameter_number()
     {
+        $this->expectException(ActiveRecord\ExpressionsException::class);
+
         $a = new Expressions(null, 'name=?');
         $a->bind(0, 99);
     }

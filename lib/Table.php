@@ -237,6 +237,7 @@ class Table
 
         $collect_attrs_for_includes = is_null($includes) ? false : true;
         $list = $attrs = array();
+
         $sth = $this->conn->query($sql, $this->process_data($values));
 
         $self = $this;

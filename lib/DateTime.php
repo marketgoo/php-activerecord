@@ -101,7 +101,7 @@ class DateTime extends \DateTime implements DateTimeInterface
      * @param string $format A pre-defined string format or a raw format string
      * @return string a format string
      */
-    public static function get_format(strong $format = null): string
+    public static function get_format(string $format = null): string
     {
         // use default format if no format specified
         if (!$format) {

@@ -131,7 +131,7 @@ class ColumnTest extends SnakeCase_PHPUnit_Framework_TestCase
 
     public function test_native_date_time_attribute_copies_exact_tz()
     {
-        $dt = new \DateTime(null, new \DateTimeZone('America/New_York'));
+        $dt = new \DateTime("now", new \DateTimeZone('America/New_York'));
 
         $column = new Column();
         $column->type = Column::DATETIME;
@@ -145,7 +145,7 @@ class ColumnTest extends SnakeCase_PHPUnit_Framework_TestCase
 
     public function test_ar_date_time_attribute_copies_exact_tz()
     {
-        $dt = new DateTime(null, new \DateTimeZone('America/New_York'));
+        $dt = new DateTime("now", new \DateTimeZone('America/New_York'));
 
         $column = new Column();
         $column->type = Column::DATETIME;

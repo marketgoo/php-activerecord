@@ -190,7 +190,7 @@ class SQLBuilder
      */
     public static function reverse_order($order)
     {
-        if (!trim($order)) {
+        if (!is_string($order) || !trim($order)) {
             return $order;
         }
 
@@ -227,7 +227,7 @@ class SQLBuilder
         }
 
         $parts = preg_split('/(_and_|_or_)/i', $name, -1, PREG_SPLIT_DELIM_CAPTURE);
-        $num_values = count($values);
+        $num_values = is_countable($values) ? count($values) : 0;
         $conditions = array('');
 
         for ($i = 0,$j = 0,$n = count($parts); $i < $n; $i += 2,++$j) {
@@ -396,7 +396,7 @@ class SQLBuilder
 
     private function build_update()
     {
-        if (strlen($this->update) > 0) {
+        if (!is_null($this->update) && (strlen($this->update) > 0)) {
             $set = $this->update;
         } else {
             $set = join('=?, ', $this->quoted_key_names()) . '=?';

@@ -222,7 +222,7 @@ class Utils
 
     public static function is_blank($var)
     {
-        return 0 === strlen($var);
+        return empty($var) || (strlen($var) == 0);
     }
 
     private static $plural = array(

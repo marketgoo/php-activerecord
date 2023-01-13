@@ -13,7 +13,7 @@ class SqliteAdapterTest extends AdapterTest
     {
         parent::tearDown();
 
-        @unlink(self::InvalidDb);
+        @unlink(self::INVALID_DB);
     }
 
 
@@ -27,10 +27,10 @@ class SqliteAdapterTest extends AdapterTest
     public function testConnectToInvalidDatabaseShouldNotCreateDbFile()
     {
         try {
-            ActiveRecord\Connection::instance("sqlite://" . self::InvalidDb);
+            ActiveRecord\Connection::instance("sqlite://" . self::INVALID_DB);
             $this->assertFalse(true);
         } catch (ActiveRecord\DatabaseException $e) {
-            $this->assertFalse(file_exists(__DIR__ . "/" . self::InvalidDb));
+            $this->assertFalse(file_exists(__DIR__ . "/" . self::INVALID_DB));
         }
     }
 
@@ -79,5 +79,6 @@ class SqliteAdapterTest extends AdapterTest
     // not supported
     public function test_connect_with_port()
     {
+        $this->expectNotToPerformAssertions();
     }
 }

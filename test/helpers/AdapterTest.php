@@ -21,11 +21,12 @@ class AdapterTest extends DatabaseTest
     public function test_i_has_a_default_port_unless_im_sqlite()
     {
         if ($this->conn instanceof ActiveRecord\SqliteAdapter) {
+            $this->expectNotToPerformAssertions();
             return;
         }
 
         $c = $this->conn;
-        $this->assert_true($c::$DEFAULT_PORT > 0);
+        $this->assertTrue($c::$DEFAULT_PORT > 0);
     }
 
     public function test_should_set_adapter_variables()
@@ -40,19 +41,16 @@ class AdapterTest extends DatabaseTest
         $this->assert_not_null(ActiveRecord\Connection::instance());
     }
 
-    /**
-     * @expectedException ActiveRecord\DatabaseException
-     */
     public function test_invalid_connection_protocol()
     {
+        $this->expectException(ActiveRecord\DatabaseException::class);
         ActiveRecord\Connection::instance('terribledb://user:pass@host/db');
     }
 
-    /**
-     * @expectedException ActiveRecord\DatabaseException
-     */
     public function test_no_host_connection()
     {
+        $this->expectException(ActiveRecord\DatabaseException::class);
+
         if (!$GLOBALS['slow_tests']) {
             throw new ActiveRecord\DatabaseException("");
         }
@@ -60,11 +58,10 @@ class AdapterTest extends DatabaseTest
         ActiveRecord\Connection::instance("{$this->conn->protocol}://user:pass");
     }
 
-    /**
-     * @expectedException ActiveRecord\DatabaseException
-     */
     public function test_connection_failed_invalid_host()
     {
+        $this->expectException(ActiveRecord\DatabaseException::class);
+
         if (!$GLOBALS['slow_tests']) {
             throw new ActiveRecord\DatabaseException("");
         }
@@ -72,19 +69,15 @@ class AdapterTest extends DatabaseTest
         ActiveRecord\Connection::instance("{$this->conn->protocol}://user:pass/1.1.1.1/db");
     }
 
-    /**
-     * @expectedException ActiveRecord\DatabaseException
-     */
     public function test_connection_failed()
     {
+        $this->expectException(ActiveRecord\DatabaseException::class);
         ActiveRecord\Connection::instance("{$this->conn->protocol}://baduser:badpass@127.0.0.1/db");
     }
 
-    /**
-     * @expectedException ActiveRecord\DatabaseException
-     */
     public function test_connect_failed()
     {
+        $this->expectException(ActiveRecord\DatabaseException::class);
         ActiveRecord\Connection::instance("{$this->conn->protocol}://zzz:zzz@127.0.0.1/test");
     }
 
@@ -105,13 +98,13 @@ class AdapterTest extends DatabaseTest
         if ($this->conn->protocol != 'sqlite') {
             ActiveRecord\Connection::instance($connection_string);
         }
+
+        $this->expectNotToPerformAssertions();
     }
 
-    /**
-     * @expectedException ActiveRecord\DatabaseException
-     */
     public function test_connect_to_invalid_database()
     {
+        $this->expectException(ActiveRecord\DatabaseException::class);
         ActiveRecord\Connection::instance("{$this->conn->protocol}://test:test@127.0.0.1/" . self::INVALID_DB);
     }
 
@@ -156,6 +149,8 @@ class AdapterTest extends DatabaseTest
         if ($this->conn->supports_sequences()) {
             $author_columns = $this->conn->columns('authors');
             $this->assert_equals('authors_author_id_seq', $author_columns['author_id']->sequence);
+        } else {
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -200,11 +195,9 @@ class AdapterTest extends DatabaseTest
         $this->assert_equals('Tito', $row['name']);
     }
 
-    /**
-     * @expectedException ActiveRecord\DatabaseException
-     */
     public function test_invalid_query()
     {
+        $this->expectException(ActiveRecord\DatabaseException::class);
         $this->conn->query('alsdkjfsdf');
     }
 
@@ -352,12 +345,12 @@ class AdapterTest extends DatabaseTest
 
     public function test_query_column_info()
     {
-        $this->assert_greater_than(0, count($this->conn->query_column_info("authors")));
+        $this->assert_greater_than(0, count($this->conn->query_column_info("authors")->fetch()));
     }
 
     public function test_query_table_info()
     {
-        $this->assert_greater_than(0, count($this->conn->query_for_tables()));
+        $this->assert_greater_than(0, count($this->conn->query_for_tables()->fetch()));
     }
 
     public function test_query_table_info_must_return_one_field()

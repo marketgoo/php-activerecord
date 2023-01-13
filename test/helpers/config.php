@@ -69,7 +69,7 @@ ActiveRecord\Config::initialize(function ($cfg) {
     }
 
     if ($GLOBALS['show_warnings']  && !isset($GLOBALS['show_warnings_done'])) {
-        if (!extension_loaded('memcache')) {
+        if (!extension_loaded('memcached')) {
             echo "(Cache Tests will be skipped, Memcache not found.)\n";
         }
     }
@@ -80,3 +80,5 @@ ActiveRecord\Config::initialize(function ($cfg) {
 });
 
 error_reporting(E_ALL | E_STRICT);
+
+spl_autoload_register('activerecord_autoload');

@@ -6,12 +6,18 @@ class CacheModelTest extends DatabaseTest
 {
     public function set_up($connection_name = null)
     {
-        if (!extension_loaded('memcache')) {
-            $this->markTestSkipped('The memcache extension is not available');
+        if (!extension_loaded('memcached')) {
+            $this->markTestSkipped('The memcached extension is not available');
             return;
         }
+
+        try {
+            ActiveRecord\Config::instance()->set_cache('memcached://localhost');
+        } catch (ActiveRecord\CacheException $e) {
+            $this->markTestSkipped('Unable to connect to memcached server');
+        }
+
         parent::set_up($connection_name);
-        ActiveRecord\Config::instance()->set_cache('memcache://localhost');
     }
 
     protected static function set_method_public($className, $methodName)

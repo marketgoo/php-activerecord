@@ -6,10 +6,10 @@
     "homepage": "http://www.phpactiverecord.org/",
     "license": "MIT",
     "require": {
-        "php": ">=8.1.0",
-        "squizlabs/php_codesniffer": "^3.7"
+        "php": ">=8.0.0"
     },
     "require-dev": {
+        "squizlabs/php_codesniffer": "^3.7",
         "phpunit/phpunit": "^9.5"
     },
     "autoload": {

@@ -275,7 +275,7 @@ abstract class AbstractRelationship implements InterfaceRelationship
     protected function unset_non_finder_options($options)
     {
         foreach (array_keys($options) as $option) {
-            if (!in_array($option, Model::$VALID_OPTIONS)) {
+            if (!Model::is_options_hash([$option => $option], false)) {
                 unset($options[$option]);
             }
         }

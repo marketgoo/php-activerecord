@@ -1,7 +1,7 @@
 <?php
 
-if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 80100) {
-    die('PHP ActiveRecord requires PHP 8.1 or higher');
+if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 80000) {
+    die('PHP ActiveRecord requires PHP 8.0 or higher');
 }
 
 define('PHP_ACTIVERECORD_VERSION_ID', '1.0');
@@ -37,7 +37,7 @@ function activerecord_autoload($class_name)
             $directories[] = $directory;
         }
 
-        $root .= DIRECTORY_SEPARATOR . implode($directories, DIRECTORY_SEPARATOR);
+        $root .= DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $directories);
     }
 
     $file = "$root/$class_name.php";

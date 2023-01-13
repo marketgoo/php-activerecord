@@ -6,12 +6,16 @@ class CacheTest extends SnakeCase_PHPUnit_Framework_TestCase
 {
     public function set_up()
     {
-        if (!extension_loaded('memcache')) {
-            $this->markTestSkipped('The memcache extension is not available');
+        if (!extension_loaded('memcached')) {
+            $this->markTestSkipped('The memcached extension is not available');
             return;
         }
 
-        Cache::initialize('memcache://localhost');
+        try {
+            Cache::initialize('memcached://localhost');
+        } catch (ActiveRecord\CacheException $e) {
+            $this->markTestSkipped('Unable to connect to memcached server');
+        }
     }
 
     public function tear_down()
@@ -54,6 +58,8 @@ class CacheTest extends SnakeCase_PHPUnit_Framework_TestCase
         Cache::get("1337", function () {
             throw new Exception("I better not execute!");
         });
+
+        $this->expectNotToPerformAssertions();
     }
 
     public function test_cache_adapter_returns_false_on_cache_miss()
@@ -89,6 +95,7 @@ class CacheTest extends SnakeCase_PHPUnit_Framework_TestCase
      */
     public function test_exception_when_connect_fails()
     {
-        Cache::initialize('memcache://127.0.0.1:1234');
+        $this->expectException(ActiveRecord\CacheException::class);
+        Cache::initialize('memcached://127.0.0.1:1234');
     }
 }

@@ -56,7 +56,7 @@ class ModelCallbackTest extends DatabaseTest
 
     public function test_after_construct_fires_by_default()
     {
-        $this->assert_fires('after_construct', function ($model) {
+        $this->assert_fires(array('after_construct'), function ($model) {
             new Venue();
         });
     }

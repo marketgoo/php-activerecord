@@ -154,8 +154,8 @@ class SerializationTest extends DatabaseTest
     public function test_works_with_datetime()
     {
         Author::find(1)->update_attribute('created_at', new DateTime());
-        $this->assert_reg_exp('/<updated_at>[0-9]{4}-[0-9]{2}-[0-9]{2}/', Author::find(1)->to_xml());
-        $this->assert_reg_exp('/"updated_at":"[0-9]{4}-[0-9]{2}-[0-9]{2}/', Author::find(1)->to_json());
+        $this->assertMatchesRegularExpression('/<updated_at>[0-9]{4}-[0-9]{2}-[0-9]{2}/', Author::find(1)->to_xml());
+        $this->assertMatchesRegularExpression('/"updated_at":"[0-9]{4}-[0-9]{2}-[0-9]{2}/', Author::find(1)->to_json());
     }
 
     public function test_to_xml_skip_instruct()
@@ -166,7 +166,7 @@ class SerializationTest extends DatabaseTest
 
     public function test_only_method()
     {
-        $this->assert_contains('<sharks>lasers</sharks>', Author::first()->to_xml(array('only_method' => 'return_something')));
+        $this->assertStringContainsString('<sharks>lasers</sharks>', Author::first()->to_xml(array('only_method' => 'return_something')));
     }
 
     public function test_to_csv()
