@@ -45,9 +45,10 @@ use Traversable;
 class Validations
 {
     private $model;
+    private $record;
+    private $klass;
     private $options = array();
     private $validators = array();
-    private $record;
 
     private static $VALIDATION_FUNCTIONS = array(
         'validates_presence_of',

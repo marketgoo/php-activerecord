@@ -4,6 +4,9 @@ use ActiveRecord as AR;
 
 class UtilsTest extends SnakeCase_PHPUnit_Framework_TestCase
 {
+    protected $object_array;
+    protected $array_hash;
+
     public function set_up()
     {
         $this->object_array = array(null,null);

@@ -6,6 +6,9 @@ use ActiveRecord\DatabaseException;
 
 class ColumnTest extends SnakeCase_PHPUnit_Framework_TestCase
 {
+    protected $column;
+    protected $conn;
+
     public function set_up()
     {
         $this->column = new Column();

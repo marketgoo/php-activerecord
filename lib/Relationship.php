@@ -358,15 +358,15 @@ abstract class AbstractRelationship implements InterfaceRelationship
             $this->set_keys($from_table->class->getName());
 
             if ($using_through) {
-                $foreign_key = $this->primary_key[0];
-                $join_primary_key = $this->foreign_key[0];
+                $foreign_key = $this->primary_key[0] ?? null;
+                $join_primary_key = $this->foreign_key[0] ?? null;
             } else {
-                $join_primary_key = $this->foreign_key[0];
-                $foreign_key = $this->primary_key[0];
+                $join_primary_key = $this->foreign_key[0] ?? null;
+                $foreign_key = $this->primary_key[0] ?? null;
             }
         } else {
-            $foreign_key = $this->foreign_key[0];
-            $join_primary_key = $this->primary_key[0];
+            $foreign_key = $this->foreign_key[0] ?? null;
+            $join_primary_key = $this->primary_key[0] ?? null;
         }
 
         if (!is_null($alias)) {
@@ -446,6 +446,7 @@ class HasMany extends AbstractRelationship
      */
     protected static $valid_association_options = array('primary_key', 'order', 'group', 'having', 'limit', 'offset', 'through', 'source');
 
+    protected $initialized;
     protected $primary_key;
 
     private $has_one = false;
@@ -693,6 +694,8 @@ class HasAndBelongsToMany extends AbstractRelationship
  */
 class BelongsTo extends AbstractRelationship
 {
+    protected $internal_pk;
+
     public function __construct($options = array())
     {
         parent::__construct($options);
@@ -709,8 +712,10 @@ class BelongsTo extends AbstractRelationship
 
     public function __get($name)
     {
-        if ($name === 'primary_key' && !isset($this->primary_key)) {
-            $this->primary_key = array(Table::load($this->class_name)->pk[0]);
+        if ($name === 'primary_key') {
+            return isset($this->internal_pk)
+                ? $this->internal_pk
+                : $this->internal_pk = array(Table::load($this->class_name)->pk[0]);
         }
 
         return $this->$name;

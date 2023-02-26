@@ -2,6 +2,8 @@
 
 class CallBackTest extends DatabaseTest
 {
+    protected $callback;
+
     public function set_up($connection_name = null)
     {
         parent::set_up($connection_name);

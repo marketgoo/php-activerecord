@@ -8,6 +8,7 @@ class SQLBuilderTest extends DatabaseTest
     protected $table_name = 'authors';
     protected $class_name = 'Author';
     protected $table;
+    protected $sql;
 
     public function set_up($connection_name = null)
     {
