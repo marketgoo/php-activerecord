@@ -407,7 +407,8 @@ class AdapterTest extends DatabaseTest
     public function test_datetime_to_string()
     {
         $datetime = '2009-01-01 01:01:01 EST';
-        $this->assert_equals($datetime, $this->conn->datetime_to_string(date_create($datetime)));
+        $expected_datetime = '2009-01-01 01:01:01-05:00';
+        $this->assert_equals($expected_datetime, $this->conn->datetime_to_string(date_create($datetime)));
     }
 
     public function test_date_to_string()

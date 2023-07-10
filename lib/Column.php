@@ -200,6 +200,12 @@ class Column
             $this->type = self::STRING;
         }
 
+        // Display width specification for integer data types was deprecated in MySQL 8.0.17
+        // See: https://dev.mysql.com/doc/relnotes/mysql/8.0/en/news-8-0-19.html
+        if (($this->type == self::INTEGER) && ($this->length == 0)) {
+            $this->length = 11;
+        }
+
         return $this->type;
     }
 }

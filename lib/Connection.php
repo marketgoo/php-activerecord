@@ -72,7 +72,7 @@ abstract class Connection
      * Database's datetime format
      * @var string
      */
-    public static $datetime_format = 'Y-m-d H:i:s T';
+    public static $datetime_format = 'Y-m-d H:i:sP';
 
     /**
      * Default PDO options to set for each connection.
