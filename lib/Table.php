@@ -519,6 +519,10 @@ class Table
                 continue;
             }
 
+            if (!in_array($name, ['has_many', 'has_one', 'belongs_to', 'has_and_belongs_to_many'])) {
+                continue;
+            }
+
             foreach (wrap_strings_in_arrays($definitions) as $definition) {
                 $relationship = null;
                 $definition += array('namespace' => $namespace);
