@@ -6,16 +6,26 @@ class AdapterTest extends DatabaseTest
 {
     const INVALID_DB = '__1337__invalid_db__';
 
-    public function set_up($connection_name = null)
+    public function setUp(): void
     {
         if (
-            ($connection_name && !in_array($connection_name, PDO::getAvailableDrivers())) ||
-            ActiveRecord\Config::instance()->get_connection($connection_name) == 'skip'
+            ($this->connection_name && !in_array($this->connection_name, PDO::getAvailableDrivers())) ||
+            ActiveRecord\Config::instance()->get_connection($this->connection_name) == 'skip'
         ) {
-            $this->mark_test_skipped($connection_name . ' drivers are not present');
+            $this->mark_test_skipped($this->connection_name . ' drivers are not present');
+        } else {
+            parent::setUp();
+        }
+    }
+
+    public function tearDown(): void
+    {
+        if ($this->status()->asString() == "skipped") {
+            // Nothing left to do on skipped test cases
+            return;
         }
 
-        parent::set_up($connection_name);
+        parent::tearDown();
     }
 
     public function test_i_has_a_default_port_unless_im_sqlite()

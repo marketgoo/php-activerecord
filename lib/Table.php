@@ -127,7 +127,7 @@ class Table
 
         $ret = $space = '';
 
-        $existing_tables = array();
+        $existing_tables = [];
         foreach ($joins as $value) {
             $ret .= $space;
 
@@ -140,7 +140,7 @@ class Table
                         $alias = $value;
                         $existing_tables[$rel->class_name]++;
                     } else {
-                        $existing_tables[$rel->class_name] = true;
+                        $existing_tables[$rel->class_name] = 1;
                         $alias = null;
                     }
 

@@ -4,15 +4,15 @@ require_once __DIR__ . '/../lib/adapters/SqliteAdapter.php';
 
 class SqliteAdapterTest extends AdapterTest
 {
-    public function setUp($connection_name = null): void
+    public function setUp(): void
     {
-        parent::set_up('sqlite');
+        $this->connection_name = 'sqlite';
+        parent::setUp();
     }
 
     public function tearDown(): void
     {
         parent::tearDown();
-
         @unlink(self::INVALID_DB);
     }
 
@@ -20,7 +20,6 @@ class SqliteAdapterTest extends AdapterTest
     public static function tearDownAfterClass(): void
     {
         parent::tearDownAfterClass();
-
         @unlink(static::$db);
     }
 

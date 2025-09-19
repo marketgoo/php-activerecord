@@ -32,7 +32,7 @@ class ConfigTest extends SnakeCase_PHPUnit_Framework_TestCase
     protected $config;
     protected $connections;
 
-    public function set_up()
+    public function setUp(): void
     {
         $this->config = new Config();
         $this->connections = array('development' => 'mysql://blah/development', 'test' => 'mysql://blah/test');

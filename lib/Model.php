@@ -1272,9 +1272,13 @@ class Model
      * @param $name of relationship for this table
      * @return void
      */
-    public function set_relationship_from_eager_load(Model $model = null, $name)
+    public function set_relationship_from_eager_load(?Model $model = null, ?string $name = null)
     {
         $table = static::table();
+
+        if (is_null($name)) {
+            throw new RelationshipException("Empty Relationship requested for class: {$table->class->getName()}");
+        }
 
         if (($rel = $table->get_relationship($name))) {
             if ($rel->is_poly()) {

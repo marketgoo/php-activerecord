@@ -4,7 +4,7 @@ use ActiveRecord\Cache;
 
 class ActiveRecordCacheTest extends DatabaseTest
 {
-    public function set_up($connection_name = null)
+    public function setUp(): void
     {
         if (!extension_loaded('memcached')) {
             $this->markTestSkipped('The memcached extension is not available');
@@ -20,7 +20,7 @@ class ActiveRecordCacheTest extends DatabaseTest
         parent::set_up($connection_name);
     }
 
-    public function tear_down()
+    public function tearDown(): void
     {
         Cache::flush();
         Cache::initialize(null);

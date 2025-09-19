@@ -10,10 +10,10 @@ class BookFormat extends ActiveRecord\Model
 
 class ValidatesFormatOfTest extends DatabaseTest
 {
-    public function set_up($connection_name = null)
+    public function setUp(): void
     {
-        parent::set_up($connection_name);
-        BookFormat::$validates_format_of[0] = array('name');
+        parent::setUp();
+        BookFormat::$validates_format_of[0] = ['name'];
     }
 
     public function test_format()

@@ -18,11 +18,12 @@ class BookInclusion extends ActiveRecord\Model
 
 class ValidatesInclusionAndExclusionOfTest extends DatabaseTest
 {
-    public function set_up($connection_name = null)
+    public function setUp(): void
     {
-        parent::set_up($connection_name);
-        BookInclusion::$validates_inclusion_of[0] = array('name', 'in' => array('blah', 'tanker', 'shark'));
-        BookExclusion::$validates_exclusion_of[0] = array('name', 'in' => array('blah', 'alpha', 'bravo'));
+        parent::setUp();
+
+        BookInclusion::$validates_inclusion_of[0] = ['name', 'in' => ['blah', 'tanker', 'shark']];
+        BookExclusion::$validates_exclusion_of[0] = ['name', 'in' => ['blah', 'alpha', 'bravo']];
     }
 
     public function test_inclusion()

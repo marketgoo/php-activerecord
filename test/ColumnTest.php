@@ -9,9 +9,10 @@ class ColumnTest extends SnakeCase_PHPUnit_Framework_TestCase
     protected $column;
     protected $conn;
 
-    public function set_up()
+    public function setUp(): void
     {
         $this->column = new Column();
+
         try {
             $this->conn = ActiveRecord\ConnectionManager::get_connection(ActiveRecord\Config::instance()->get_default_connection());
         } catch (DatabaseException $e) {

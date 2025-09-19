@@ -6,9 +6,11 @@ require_once __DIR__ . '/../lib/adapters/PgsqlAdapter.php';
 
 class PgsqlAdapterTest extends AdapterTest
 {
-    public function set_up($connection_name = null)
+    public function setUp(): void
     {
-        parent::set_up('pgsql');
+        $this->connection_name = 'pgsql';
+
+        parent::setUp();
     }
 
     public function test_insert_id()

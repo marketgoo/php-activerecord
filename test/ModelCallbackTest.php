@@ -5,9 +5,9 @@ class ModelCallbackTest extends DatabaseTest
     protected $venue;
     protected $callback;
 
-    public function set_up($connection_name = null)
+    public function setUp(): void
     {
-        parent::set_up($connection_name);
+        parent::setUp();
 
         $this->venue = new Venue();
         $this->callback = Venue::table()->callback;

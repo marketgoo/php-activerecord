@@ -19,12 +19,13 @@ class ValidatesNumericalityOfTest extends DatabaseTest
     static $INTEGERS = array(0, 10, -10);
     static $JUNK = array("not a number", "42 not a number", "00-1", "--3", "+-3", "+3-1", "-+019.0", "12.12.13.12", "123\nnot a number");
 
-    public function set_up($connection_name = null)
+    public function setUp(): void
     {
-        parent::set_up($connection_name);
-        BookNumericality::$validates_numericality_of = array(
-            array('numeric_test')
-        );
+        parent::setUp();
+
+        BookNumericality::$validates_numericality_of = [
+            ['numeric_test']
+        ];
     }
 
     private function assert_validity($value, $boolean, $msg = null)

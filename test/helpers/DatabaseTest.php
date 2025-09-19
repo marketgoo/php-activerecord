@@ -13,30 +13,28 @@ class DatabaseTest extends SnakeCase_PHPUnit_Framework_TestCase
     public static $log = false;
     public static $db;
 
-    public function set_up($connection_name = null)
+    public function setUp(): void
     {
         ActiveRecord\Table::clear_cache();
 
         $config = ActiveRecord\Config::instance();
         $this->original_default_connection = $config->get_default_connection();
-
         $this->original_date_class = $config->get_date_class();
 
-        if ($connection_name) {
-            $config->set_default_connection($connection_name);
+        if ($this->connection_name) {
+            $config->set_default_connection($this->connection_name);
         }
 
-        if ($connection_name == 'sqlite' || $config->get_default_connection() == 'sqlite') {
+        if ($this->connection_name == 'sqlite' || $config->get_default_connection() == 'sqlite') {
             // need to create the db. the adapter specifically does not create it for us.
             static::$db = substr(ActiveRecord\Config::instance()->get_connection('sqlite'), 9);
             new SQLite3(static::$db);
         }
 
-        $this->connection_name = $connection_name;
         try {
-            $this->conn = ActiveRecord\ConnectionManager::get_connection($connection_name);
+            $this->conn = ActiveRecord\ConnectionManager::get_connection($this->connection_name);
         } catch (ActiveRecord\DatabaseException $e) {
-            $this->mark_test_skipped($connection_name . ' failed to connect. ' . $e->getMessage());
+            $this->mark_test_skipped($this->connection_name . ' failed to connect. ' . $e->getMessage());
         }
 
         $GLOBALS['ACTIVERECORD_LOG'] = false;
@@ -49,9 +47,15 @@ class DatabaseTest extends SnakeCase_PHPUnit_Framework_TestCase
         }
     }
 
-    public function tear_down()
+    public function tearDown(): void
     {
+        if ($this->status()->asString() == "skipped") {
+            // Nothing left to do on skipped test cases
+            return;
+        }
+
         ActiveRecord\Config::instance()->set_date_class($this->original_date_class);
+
         if ($this->original_default_connection) {
             ActiveRecord\Config::instance()->set_default_connection($this->original_default_connection);
         }
@@ -88,5 +92,11 @@ class DatabaseTest extends SnakeCase_PHPUnit_Framework_TestCase
         $needle = str_replace(array('"','`'), '', $needle);
         $haystack = str_replace(array('"','`'), '', $haystack);
         return $this->assertStringNotContainsString($needle, $haystack);
+    }
+
+    public function test_database_dummy_test()
+    {
+        // Dummy test so that PHPUnit doesn't emit "no tests found" warning
+        $this->assertTrue(true);
     }
 }

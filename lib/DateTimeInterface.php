@@ -28,10 +28,10 @@ interface DateTimeInterface
     /**
      * Formats the DateTime to the specified format.
      */
-    public function format(string $format = null): string;
+    public function format(?string $format = null): string;
 
     /**
      * See http://php.net/manual/en/datetime.createfromformat.php
      */
-    public static function createFromFormat(string $format, string $time, \DateTimeZone $tz = null): \DateTime | false;
+    public static function createFromFormat(string $format, string $time, ?\DateTimeZone $tz = null): \DateTime | false;
 }

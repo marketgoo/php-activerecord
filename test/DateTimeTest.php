@@ -8,13 +8,13 @@ class DateTimeTest extends SnakeCase_PHPUnit_Framework_TestCase
     protected $date;
     protected $original_format;
 
-    public function set_up()
+    public function setUp(): void
     {
         $this->date = new DateTime();
         $this->original_format = DateTime::$DEFAULT_FORMAT;
     }
 
-    public function tear_down()
+    public function tearDown(): void
     {
         DateTime::$DEFAULT_FORMAT = $this->original_format;
     }

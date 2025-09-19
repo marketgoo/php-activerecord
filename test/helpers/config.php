@@ -79,6 +79,6 @@ ActiveRecord\Config::initialize(function ($cfg) {
     $GLOBALS['show_warnings_done'] = true;
 });
 
-error_reporting(E_ALL | E_STRICT);
+error_reporting(E_ALL);
 
 spl_autoload_register('activerecord_autoload');

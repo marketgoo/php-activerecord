@@ -4,7 +4,7 @@ use ActiveRecord\Cache;
 
 class CacheTest extends SnakeCase_PHPUnit_Framework_TestCase
 {
-    public function set_up()
+    public function setUp(): void
     {
         if (!extension_loaded('memcached')) {
             $this->markTestSkipped('The memcached extension is not available');
@@ -18,7 +18,7 @@ class CacheTest extends SnakeCase_PHPUnit_Framework_TestCase
         }
     }
 
-    public function tear_down()
+    public function tearDown(): void
     {
         Cache::flush();
     }

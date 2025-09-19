@@ -4,7 +4,7 @@ use ActiveRecord\Cache;
 
 class CacheModelTest extends DatabaseTest
 {
-    public function set_up($connection_name = null)
+    public function setUp(): void
     {
         if (!extension_loaded('memcached')) {
             $this->markTestSkipped('The memcached extension is not available');
@@ -17,7 +17,7 @@ class CacheModelTest extends DatabaseTest
             $this->markTestSkipped('Unable to connect to memcached server');
         }
 
-        parent::set_up($connection_name);
+        parent::setUp();
     }
 
     protected static function set_method_public($className, $methodName)
@@ -28,7 +28,7 @@ class CacheModelTest extends DatabaseTest
         return $method;
     }
 
-    public function tear_down()
+    public function tearDown(): void
     {
         Cache::flush();
         Cache::initialize(null);

@@ -6,9 +6,10 @@ require_once __DIR__ . '/../lib/adapters/MysqlAdapter.php';
 
 class MysqlAdapterTest extends AdapterTest
 {
-    public function set_up($connection_name = null)
+    public function setUp(): void
     {
-        parent::set_up('mysql');
+        $this->connection_name = 'mysql';
+        parent::setUp();
     }
 
     public function test_enum()

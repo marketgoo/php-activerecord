@@ -4,10 +4,11 @@ class ActiveRecordTest extends DatabaseTest
 {
     protected $options;
 
-    public function set_up($connection_name = null)
+    public function setUp(): void
     {
-        parent::set_up($connection_name);
-        $this->options = array('conditions' => 'blah', 'order' => 'blah');
+        parent::setUp();
+
+        $this->options = ['conditions' => 'blah', 'order' => 'blah'];
     }
 
     public function test_options_is_not()
@@ -546,7 +547,7 @@ class ActiveRecordTest extends DatabaseTest
 
     public function test_assigning_from_mass_assignment_php_datetime_gets_converted_to_ar_datetime()
     {
-        $author = new Author(array('created_at' => new \DateTime()));
+        $author = new Author(['created_at' => new \DateTime()]);
         $this->assert_is_a("ActiveRecord\\DateTime", $author->created_at);
     }
 

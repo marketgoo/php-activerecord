@@ -6,7 +6,7 @@ class InflectorTest extends SnakeCase_PHPUnit_Framework_TestCase
 {
     protected $inflector;
 
-    public function set_up()
+    public function setUp(): void
     {
         $this->inflector = ActiveRecord\Inflector::instance();
     }

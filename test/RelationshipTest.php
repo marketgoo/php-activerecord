@@ -14,20 +14,20 @@ class AuthorWithNonModelRelationship extends ActiveRecord\Model
 class RelationshipTest extends DatabaseTest
 {
     protected $relationship_name;
-    protected $relationship_names = array('has_many', 'belongs_to', 'has_one');
+    protected $relationship_names = ['has_many', 'belongs_to', 'has_one'];
 
-    public function set_up($connection_name = null)
+    public function setUp(): void
     {
-        parent::set_up($connection_name);
+        parent::setUp();
 
-        Event::$belongs_to = array(array('venue'), array('host'));
-        Venue::$has_many = array(array('events', 'order' => 'id asc'),array('hosts', 'through' => 'events', 'order' => 'hosts.id asc'));
-        Venue::$has_one = array();
-        Employee::$has_one = array(array('position'));
-        Host::$has_many = array(array('events', 'order' => 'id asc'));
+        Event::$belongs_to = [['venue'], ['host']];
+        Venue::$has_many = [['events', 'order' => 'id asc'], ['hosts', 'through' => 'events', 'order' => 'hosts.id asc']];
+        Venue::$has_one = [];
+        Employee::$has_one = [['position']];
+        Host::$has_many = [['events', 'order' => 'id asc']];
 
         foreach ($this->relationship_names as $name) {
-            if (preg_match("/$name/", $this->getName(), $match)) {
+            if (preg_match("/$name/", $this->name(), $match)) {
                 $this->relationship_name = $match[0];
             }
         }

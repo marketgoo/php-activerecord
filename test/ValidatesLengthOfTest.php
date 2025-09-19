@@ -14,10 +14,11 @@ class BookSize extends ActiveRecord\Model
 
 class ValidatesLengthOfTest extends DatabaseTest
 {
-    public function set_up($connection_name = null)
+    public function setUp(): void
     {
-        parent::set_up($connection_name);
-        BookLength::$validates_length_of[0] = array('name', 'allow_blank' => false, 'allow_null' => false);
+        parent::setUp();
+
+        BookLength::$validates_length_of[0] = ['name', 'allow_blank' => false, 'allow_null' => false];
     }
 
     public function test_within()

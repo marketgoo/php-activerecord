@@ -393,11 +393,11 @@ class ActiveRecordWriteTest extends DatabaseTest
 
     /**
      * TODO: not implemented
-    public function test_update_all_with_set_as_array()
-    {
-        $num_affected = Author::update_all(array('set' => array('parent_author_id = ?', 2)));
-        $this->assert_equals(2, $num_affected);
-    }
+     * public function test_update_all_with_set_as_array()
+     * {
+     *     $num_affected = Author::update_all(array('set' => array('parent_author_id = ?', 2)));
+     *    $this->assert_equals(2, $num_affected);
+     * }
      */
 
     public function test_update_all_with_conditions_as_string()

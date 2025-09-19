@@ -10,9 +10,9 @@ class SQLBuilderTest extends DatabaseTest
     protected $table;
     protected $sql;
 
-    public function set_up($connection_name = null)
+    public function setUp(): void
     {
-        parent::set_up($connection_name);
+        parent::setUp();
         $this->sql = new SQLBuilder($this->conn, $this->table_name);
         $this->table = Table::load($this->class_name);
     }
