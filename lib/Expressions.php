@@ -6,6 +6,8 @@
 
 namespace ActiveRecord;
 
+use ActiveRecord\Exceptions\ExpressionsException;
+
 /**
  * Templating like class for building SQL statements.
  *
@@ -20,8 +22,9 @@ class Expressions
 {
     const PARAMETER_MARKER = '?';
     private $expressions;
-    private $values = array();
+    private $values = [];
     private $connection;
+
     public function __construct($connection, $expressions = null /* [, $values ... ] */)
     {
         $values = null;
@@ -104,7 +107,7 @@ class Expressions
             if ($ch == self::PARAMETER_MARKER) {
                 if ($quotes % 2 == 0) {
                     if ($j > $num_values - 1) {
-                            throw new ExpressionsException("No bound parameter for index $j");
+                        throw new ExpressionsException("No bound parameter for index $j");
                     }
 
                     $ch = $this->substitute($values, $substitute, $i, $j++);

@@ -1,7 +1,10 @@
 <?php
 
-use ActiveRecord\SQLBuilder;
+use TestModels\Author;
 use ActiveRecord\Table;
+use ActiveRecord\SQLBuilder;
+use TestHelpers\DatabaseTest;
+use ActiveRecord\Exceptions\ActiveRecordException;
 
 class SQLBuilderTest extends DatabaseTest
 {
@@ -38,7 +41,7 @@ class SQLBuilderTest extends DatabaseTest
 
     public function test_no_connection()
     {
-        $this->expectException(ActiveRecord\ActiveRecordException::class);
+        $this->expectException(ActiveRecordException::class);
         new SQLBuilder(null, 'authors');
     }
 
@@ -136,7 +139,7 @@ class SQLBuilderTest extends DatabaseTest
 
     public function test_insert_requires_hash()
     {
-        $this->expectException(ActiveRecord\ActiveRecordException::class);
+        $this->expectException(ActiveRecordException::class);
         $this->sql->insert(array(1));
     }
 

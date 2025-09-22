@@ -1,6 +1,10 @@
 <?php
 
-class AwesomePerson extends ActiveRecord\Model
+namespace TestModels;
+
+use ActiveRecord\Model;
+
+class AwesomePerson extends Model
 {
-    static $belongs_to = array('author');
+    static $belongs_to = ['author'];
 }

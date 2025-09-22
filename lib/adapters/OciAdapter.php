@@ -4,9 +4,14 @@
  * @package ActiveRecord
  */
 
-namespace ActiveRecord;
+namespace ActiveRecord\Adapters;
 
 use PDO;
+use PDOException;
+use ActiveRecord\Column;
+use ActiveRecord\Inflector;
+use ActiveRecord\Connection;
+use ActiveRecord\Exceptions\DatabaseException;
 
 /**
  * Adapter for OCI (not completed yet).
@@ -135,18 +140,18 @@ class OciAdapter extends Connection
 
     public function native_database_types()
     {
-        return array(
+        return [
             'primary_key' => "NUMBER(38) NOT NULL PRIMARY KEY",
-            'string' => array('name' => 'VARCHAR2', 'length' => 255),
-            'text' => array('name' => 'CLOB'),
-            'integer' => array('name' => 'NUMBER', 'length' => 38),
-            'float' => array('name' => 'NUMBER'),
-            'datetime' => array('name' => 'DATE'),
-            'timestamp' => array('name' => 'DATE'),
-            'time' => array('name' => 'DATE'),
-            'date' => array('name' => 'DATE'),
-            'binary' => array('name' => 'BLOB'),
-            'boolean' => array('name' => 'NUMBER', 'length' => 1)
-        );
+            'string' => ['name' => 'VARCHAR2', 'length' => 255],
+            'text' => ['name' => 'CLOB'],
+            'integer' => ['name' => 'NUMBER', 'length' => 38],
+            'float' => ['name' => 'NUMBER'],
+            'datetime' => ['name' => 'DATE'],
+            'timestamp' => ['name' => 'DATE'],
+            'time' => ['name' => 'DATE'],
+            'date' => ['name' => 'DATE'],
+            'binary' => ['name' => 'BLOB'],
+            'boolean' => ['name' => 'NUMBER', 'length' => 1]
+        ];
     }
 }

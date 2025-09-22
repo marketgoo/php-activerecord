@@ -1,10 +1,13 @@
 <?php
 
-class VenueAfterCreate extends ActiveRecord\Model
+namespace TestModels;
+
+use ActiveRecord\Model;
+
+class VenueAfterCreate extends Model
 {
     static $table_name = 'venues';
-    static $after_create = array('change_name_after_create_if_name_is_change_me');
-
+    static $after_create = ['change_name_after_create_if_name_is_change_me'];
 
     public function change_name_after_create_if_name_is_change_me()
     {

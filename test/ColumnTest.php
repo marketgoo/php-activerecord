@@ -3,6 +3,7 @@
 use ActiveRecord\Column;
 use ActiveRecord\DateTime;
 use ActiveRecord\DatabaseException;
+use TestHelpers\SnakeCase_PHPUnit_Framework_TestCase;
 
 class ColumnTest extends SnakeCase_PHPUnit_Framework_TestCase
 {

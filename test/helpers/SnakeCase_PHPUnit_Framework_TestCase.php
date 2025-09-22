@@ -1,11 +1,17 @@
 <?php
 
+namespace TestHelpers;
+
+use ActiveRecord\DateTime;
+use ActiveRecord\Inflector;
+use PHPUnit\Framework\TestCase;
+
 // phpcs:ignore
-class SnakeCase_PHPUnit_Framework_TestCase extends PHPUnit\Framework\TestCase
+class SnakeCase_PHPUnit_Framework_TestCase extends TestCase
 {
     public function __call($meth, $args)
     {
-        $camel_cased_method = ActiveRecord\Inflector::instance()->camelize($meth);
+        $camel_cased_method = Inflector::instance()->camelize($meth);
 
         if (method_exists($this, $camel_cased_method)) {
             return call_user_func_array([$this, $camel_cased_method], $args);

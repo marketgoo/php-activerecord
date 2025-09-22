@@ -1,7 +1,14 @@
 <?php
 
-require_once __DIR__ . '/DatabaseLoader.php';
+namespace TestHelpers;
 
+use SQLite3;
+use ActiveRecord\Table;
+use ActiveRecord\Config;
+use ActiveRecord\ConnectionManager;
+use ActiveRecord\Exceptions\DatabaseException;
+use ActiveRecord\Exceptions\UndefinedPropertyException;
+    
 class DatabaseTest extends SnakeCase_PHPUnit_Framework_TestCase
 {
     protected $conn;
@@ -15,9 +22,9 @@ class DatabaseTest extends SnakeCase_PHPUnit_Framework_TestCase
 
     public function setUp(): void
     {
-        ActiveRecord\Table::clear_cache();
+        Table::clear_cache();
 
-        $config = ActiveRecord\Config::instance();
+        $config = Config::instance();
         $this->original_default_connection = $config->get_default_connection();
         $this->original_date_class = $config->get_date_class();
 
@@ -27,13 +34,13 @@ class DatabaseTest extends SnakeCase_PHPUnit_Framework_TestCase
 
         if ($this->connection_name == 'sqlite' || $config->get_default_connection() == 'sqlite') {
             // need to create the db. the adapter specifically does not create it for us.
-            static::$db = substr(ActiveRecord\Config::instance()->get_connection('sqlite'), 9);
+            static::$db = substr(Config::instance()->get_connection('sqlite'), 9);
             new SQLite3(static::$db);
         }
 
         try {
-            $this->conn = ActiveRecord\ConnectionManager::get_connection($this->connection_name);
-        } catch (ActiveRecord\DatabaseException $e) {
+            $this->conn = ConnectionManager::get_connection($this->connection_name);
+        } catch (DatabaseException $e) {
             $this->mark_test_skipped($this->connection_name . ' failed to connect. ' . $e->getMessage());
         }
 
@@ -54,10 +61,10 @@ class DatabaseTest extends SnakeCase_PHPUnit_Framework_TestCase
             return;
         }
 
-        ActiveRecord\Config::instance()->set_date_class($this->original_date_class);
+        Config::instance()->set_date_class($this->original_date_class);
 
         if ($this->original_default_connection) {
-            ActiveRecord\Config::instance()->set_default_connection($this->original_default_connection);
+            Config::instance()->set_default_connection($this->original_default_connection);
         }
     }
 
@@ -67,7 +74,7 @@ class DatabaseTest extends SnakeCase_PHPUnit_Framework_TestCase
 
         try {
             $closure();
-        } catch (ActiveRecord\UndefinedPropertyException $e) {
+        } catch (UndefinedPropertyException $e) {
             $message = $e->getMessage();
         }
 

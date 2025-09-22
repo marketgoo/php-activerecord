@@ -7,6 +7,7 @@
 namespace ActiveRecord;
 
 use Closure;
+use ActiveRecord\Exceptions\ConfigException;
 
 /**
  * Manages configuration options for ActiveRecord.
@@ -60,6 +61,13 @@ class Config extends Singleton
      * @var string
      */
     private $model_directory;
+
+    /**
+     * Base namespace for the auto_loading of model classes.
+     *
+     * @var string
+     */
+    private $model_base_namespace = null;
 
     /**
      * Switch for logging.
@@ -211,6 +219,10 @@ class Config extends Singleton
      */
     public function set_model_directory($dir)
     {
+        if (!empty($dir) && !file_exists($dir)) {
+            throw new ConfigException('Invalid or non-existent directory: ' . $dir);
+        }
+
         $this->model_directory = $dir;
     }
 
@@ -227,6 +239,27 @@ class Config extends Singleton
         }
 
         return $this->model_directory;
+    }
+
+    /**
+     * Sets the base namespace of the models.
+     *
+     * @param string $namespace Base namespace for the models.
+     * @return void
+     */
+    public function set_model_namespace($namespace)
+    {
+        $this->model_base_namespace = $namespace;
+    }
+
+    /**
+     * Returns the base namespace for the models.
+     *
+     * @return string
+     */
+    public function get_model_namespace()
+    {
+        return $this->model_base_namespace;
     }
 
     /**

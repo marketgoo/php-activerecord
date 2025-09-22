@@ -1,6 +1,10 @@
 <?php
 
-class Employee extends ActiveRecord\Model
+namespace TestModels;
+
+use ActiveRecord\Model;
+
+class Employee extends Model
 {
     static $has_one;
 }

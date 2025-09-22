@@ -1,14 +1,18 @@
 <?php
 
-class Event extends ActiveRecord\Model
+namespace TestModels;
+
+use ActiveRecord\Model;
+
+class Event extends Model
 {
-    static $belongs_to = array(
+    static $belongs_to = [
         'host',
         'venue'
-    );
+    ];
 
-    static $delegate = array(
-        array('state', 'address', 'to' => 'venue'),
-        array('name', 'to' => 'host', 'prefix' => 'woot')
-    );
+    static $delegate = [
+        ['state', 'address', 'to' => 'venue'],
+        ['name', 'to' => 'host', 'prefix' => 'woot']
+    ];
 }

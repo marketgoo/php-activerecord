@@ -1,7 +1,9 @@
 <?php
 
+use TestModels\Author;
 use ActiveRecord\DatabaseException;
 use ActiveRecord\DateTime as DateTime;
+use TestHelpers\SnakeCase_PHPUnit_Framework_TestCase;
 
 class DateTimeTest extends SnakeCase_PHPUnit_Framework_TestCase
 {

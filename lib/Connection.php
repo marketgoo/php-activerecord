@@ -6,11 +6,10 @@
 
 namespace ActiveRecord;
 
-require_once 'Column.php';
-
 use PDO;
 use PDOException;
 use Closure;
+use ActiveRecord\Exceptions\DatabaseException;
 
 /**
  * The base class for database connection adapters.
@@ -138,9 +137,12 @@ abstract class Connection
             if (isset($info->charset)) {
                 $connection->set_encoding($info->charset);
             }
+        } catch (\Error $e) {
+            throw new DatabaseException($e);
         } catch (PDOException $e) {
             throw new DatabaseException($e);
         }
+
         return $connection;
     }
 
@@ -153,14 +155,14 @@ abstract class Connection
     private static function load_adapter_class($adapter)
     {
         $class = ucwords($adapter) . 'Adapter';
-        $fqclass = 'ActiveRecord\\' . $class;
-        $source = __DIR__ . "/adapters/$class.php";
+        $fqclass = 'ActiveRecord\\Adapters\\' . $class;
 
-        if (!file_exists($source)) {
-            throw new DatabaseException("$fqclass not found!");
-        }
+        // $source = __DIR__ . "/adapters/$class.php";
+        // if (!file_exists($source)) {
+        //     throw new DatabaseException("$fqclass not found!");
+        // }
+        // require_once($source);
 
-        require_once($source);
         return $fqclass;
     }
 

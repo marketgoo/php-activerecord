@@ -1,6 +1,10 @@
 <?php
 
-class VenueCB extends ActiveRecord\Model
+namespace TestModels;
+
+use ActiveRecord\Model;
+
+class VenueCB extends Model
 {
     static $table_name = 'venues';
     static $before_save;
@@ -8,7 +12,7 @@ class VenueCB extends ActiveRecord\Model
     static $before_create;
     static $before_validation;
     static $before_destroy = 'before_destroy_using_string';
-    static $after_destroy = array('after_destroy_one', 'after_destroy_two');
+    static $after_destroy = ['after_destroy_one', 'after_destroy_two'];
     static $after_create;
 
     // DO NOT add a static $after_construct for this. we are testing

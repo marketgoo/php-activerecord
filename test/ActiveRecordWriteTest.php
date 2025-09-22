@@ -1,8 +1,17 @@
 <?php
 
+use ActiveRecord\Model;
 use ActiveRecord\DateTime;
+use ActiveRecord\Exceptions\DatabaseException;
+use ActiveRecord\Exceptions\ReadOnlyException;
+use ActiveRecord\Exceptions\ActiveRecordException;
+use ActiveRecord\Exceptions\UndefinedPropertyException;
+use TestHelpers\DatabaseTest;
+use TestModels\Book;
+use TestModels\Venue;
+use TestModels\Author;
 
-class DirtyAuthor extends ActiveRecord\Model
+class DirtyAuthor extends Model
 {
     static $table = 'authors';
     static $before_save = 'before_save';
@@ -13,13 +22,13 @@ class DirtyAuthor extends ActiveRecord\Model
     }
 }
 
-class AuthorWithoutSequence extends ActiveRecord\Model
+class AuthorWithoutSequence extends Model
 {
     static $table = 'authors';
     static $sequence = 'invalid_seq';
 }
 
-class AuthorExplicitSequence extends ActiveRecord\Model
+class AuthorExplicitSequence extends Model
 {
     static $sequence = 'blah_seq';
 }
@@ -55,10 +64,10 @@ class ActiveRecordWriteTest extends DatabaseTest
 
     public function test_insert_with_no_sequence_defined()
     {
-        $this->expectException(ActiveRecord\DatabaseException::class);
+        $this->expectException(DatabaseException::class);
 
         if (!$this->conn->supports_sequences()) {
-            throw new ActiveRecord\DatabaseException('');
+            throw new DatabaseException('');
         }
 
         AuthorWithoutSequence::create(array('name' => 'Bob!'));
@@ -148,7 +157,7 @@ class ActiveRecordWriteTest extends DatabaseTest
 
     public function test_update_attributes_undefined_property()
     {
-        $this->expectException(ActiveRecord\UndefinedPropertyException::class);
+        $this->expectException(UndefinedPropertyException::class);
 
         $book = Book::find(1);
         $book->update_attributes(array('name' => 'new name', 'invalid_attribute' => true , 'another_invalid_attribute' => 'blah'));
@@ -166,7 +175,7 @@ class ActiveRecordWriteTest extends DatabaseTest
 
     public function test_update_attribute_undefined_property()
     {
-        $this->expectException(ActiveRecord\UndefinedPropertyException::class);
+        $this->expectException(UndefinedPropertyException::class);
 
         $book = Book::find(1);
         $book->update_attribute('invalid_attribute', true);
@@ -285,7 +294,7 @@ class ActiveRecordWriteTest extends DatabaseTest
 
     public function test_update_with_no_primary_key_defined()
     {
-        $this->expectException(ActiveRecord\ActiveRecordException::class);
+        $this->expectException(ActiveRecordException::class);
 
         Author::table()->pk = array();
         $author = Author::first();
@@ -295,7 +304,7 @@ class ActiveRecordWriteTest extends DatabaseTest
 
     public function test_delete_with_no_primary_key_defined()
     {
-        $this->expectException(ActiveRecord\ActiveRecordException::class);
+        $this->expectException(ActiveRecordException::class);
 
         Author::table()->pk = array();
         $author = author::first();
@@ -310,7 +319,7 @@ class ActiveRecordWriteTest extends DatabaseTest
 
     public function test_readonly()
     {
-        $this->expectException(ActiveRecord\ReadOnlyException::class);
+        $this->expectException(ReadOnlyException::class);
 
         $author = Author::first(array('readonly' => true));
         $author->save();

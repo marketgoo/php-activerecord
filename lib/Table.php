@@ -6,6 +6,8 @@
 
 namespace ActiveRecord;
 
+use ActiveRecord\Exceptions\RelationshipException;
+    
 /**
  * Manages reading and writing to a database table.
  *
@@ -17,7 +19,7 @@ namespace ActiveRecord;
  */
 class Table
 {
-    private static $cache = array();
+    private static $cache = [];
 
     public $class;
     public $conn;
@@ -25,7 +27,7 @@ class Table
     public $last_sql;
 
     // Name/value pairs of columns in this table
-    public $columns = array();
+    public $columns = [];
 
     /**
      * Name of the table.
@@ -62,18 +64,23 @@ class Table
     /**
      * List of relationships for this table.
      */
-    private $relationships = array();
+    private $relationships = [];
 
     public static function load($model_class_name)
     {
-        if (!isset(self::$cache[$model_class_name])) {
+        // Get the real class name of the requested model. We need to store
+        // the full qualified namespaced name of the class so that we can
+        // have models in different namespaces.
+        $real_class_name = Reflections::instance()->add($model_class_name)->get($model_class_name)->getName();
+
+        if (!isset(self::$cache[$real_class_name])) {
             /* do not place set_assoc in constructor..it will lead to infinite loop due to
                relationships requesting the model's table, but the cache hasn't been set yet */
-            self::$cache[$model_class_name] = new Table($model_class_name);
-            self::$cache[$model_class_name]->set_associations();
+            self::$cache[$real_class_name] = new Table($real_class_name);
+            self::$cache[$real_class_name]->set_associations();
         }
 
-        return self::$cache[$model_class_name];
+        return self::$cache[$real_class_name];
     }
 
     public static function clear_cache($model_class_name = null)
@@ -176,7 +183,7 @@ class Table
         }
 
         if (array_key_exists('conditions', $options)) {
-            if (!is_hash($options['conditions'])) {
+            if (!Utils::is_hash($options['conditions'])) {
                 if (is_string($options['conditions'])) {
                     $options['conditions'] = array($options['conditions']);
                 }
@@ -511,7 +518,7 @@ class Table
 
     private function set_associations()
     {
-        require_once __DIR__ . '/Relationship.php';
+        // require_once __DIR__ . '/Relationship.php';
         $namespace = $this->class->getNamespaceName();
 
         foreach ($this->class->getStaticProperties() as $name => $definitions) {
@@ -523,25 +530,25 @@ class Table
                 continue;
             }
 
-            foreach (wrap_strings_in_arrays($definitions) as $definition) {
+            foreach (Utils::wrap_strings_in_arrays($definitions) as $definition) {
                 $relationship = null;
                 $definition += array('namespace' => $namespace);
 
                 switch ($name) {
                     case 'has_many':
-                        $relationship = new HasMany($definition);
+                        $relationship = new Relationships\HasMany($definition);
                         break;
 
                     case 'has_one':
-                        $relationship = new HasOne($definition);
+                        $relationship = new Relationships\HasOne($definition);
                         break;
 
                     case 'belongs_to':
-                        $relationship = new BelongsTo($definition);
+                        $relationship = new Relationships\BelongsTo($definition);
                         break;
 
                     case 'has_and_belongs_to_many':
-                        $relationship = new HasAndBelongsToMany($definition);
+                        $relationship = new Relationships\HasAndBelongsToMany($definition);
                         break;
                 }
 

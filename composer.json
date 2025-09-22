@@ -13,6 +13,14 @@
         "phpunit/phpunit": "^11.5"
     },
     "autoload": {
-        "files": [ "ActiveRecord.php" ]
+        "psr-4": {
+            "ActiveRecord\\": "lib"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "TestHelpers\\": "test/helpers",
+            "TestModels\\": "test/models"
+        }
     }
 }

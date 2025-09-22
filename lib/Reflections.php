@@ -85,7 +85,19 @@ class Reflections extends Singleton
         }
 
         if (!is_null($mixed)) {
-            return $mixed;
+            // If the requested class is already namespaced, just return it
+            if (Utils::has_namespace($mixed)) {
+                return $mixed;
+            }
+
+            // Else, we need to find the class either by normal resolution
+            // (without namespace, letting regular PSR-4 resolution to find it)
+            // or use the base namespace.
+            if (class_exists($mixed)) {
+                return $mixed;
+            } else {
+                return join('\\', array_filter([Config::instance()->get_model_namespace(), $mixed]));
+            }
         }
 
         return $this->get_called_class();

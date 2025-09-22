@@ -1,6 +1,8 @@
 <?php
 
 use ActiveRecord\Cache;
+use ActiveRecord\Exceptions\CacheException;
+use TestHelpers\SnakeCase_PHPUnit_Framework_TestCase;
 
 class CacheTest extends SnakeCase_PHPUnit_Framework_TestCase
 {
@@ -13,7 +15,7 @@ class CacheTest extends SnakeCase_PHPUnit_Framework_TestCase
 
         try {
             Cache::initialize('memcached://localhost');
-        } catch (ActiveRecord\CacheException $e) {
+        } catch (CacheException $e) {
             $this->markTestSkipped('Unable to connect to memcached server');
         }
     }
@@ -95,7 +97,7 @@ class CacheTest extends SnakeCase_PHPUnit_Framework_TestCase
      */
     public function test_exception_when_connect_fails()
     {
-        $this->expectException(ActiveRecord\CacheException::class);
+        $this->expectException(CacheException::class);
         Cache::initialize('memcached://127.0.0.1:1234');
     }
 }

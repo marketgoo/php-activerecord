@@ -433,7 +433,7 @@ class Model
             }
         }
 
-        throw new UndefinedPropertyException(get_called_class(), $name);
+        throw new Exceptions\UndefinedPropertyException(get_called_class(), $name);
     }
 
     public function __wakeup()
@@ -542,7 +542,7 @@ class Model
             }
         }
 
-        throw new UndefinedPropertyException(get_called_class(), $name);
+        throw new Exceptions\UndefinedPropertyException(get_called_class(), $name);
     }
 
     /**
@@ -729,7 +729,7 @@ class Model
     private function verify_not_readonly($method_name)
     {
         if ($this->is_readonly()) {
-            throw new ReadOnlyException(get_class($this), $method_name);
+            throw new Exceptions\ReadOnlyException(get_class($this), $method_name);
         }
     }
 
@@ -888,7 +888,7 @@ class Model
             $pk = $this->values_for_pk();
 
             if (empty($pk)) {
-                throw new ActiveRecordException("Cannot update, no primary key defined for: " . get_called_class());
+                throw new Exceptions\ActiveRecordException("Cannot update, no primary key defined for: " . get_called_class());
             }
 
             if (!$this->invoke_callback('before_update', false)) {
@@ -960,7 +960,7 @@ class Model
 
         $conditions = is_array($options) ? $options['conditions'] : $options;
 
-        if (is_array($conditions) && !is_hash($conditions)) {
+        if (is_array($conditions) && !Utils::is_hash($conditions)) {
             call_user_func_array(array($sql, 'delete'), $conditions);
         } else {
             $sql->delete($conditions);
@@ -1017,7 +1017,7 @@ class Model
         $sql->update($options['set']);
 
         if (isset($options['conditions']) && ($conditions = $options['conditions'])) {
-            if (is_array($conditions) && !is_hash($conditions)) {
+            if (is_array($conditions) && !Utils::is_hash($conditions)) {
                 call_user_func_array(array($sql, 'where'), $conditions);
             } else {
                 $sql->where($conditions);
@@ -1049,7 +1049,7 @@ class Model
         $pk = $this->values_for_pk();
 
         if (empty($pk)) {
-            throw new ActiveRecordException("Cannot delete, no primary key defined for: " . get_called_class());
+            throw new Exceptions\ActiveRecordException("Cannot delete, no primary key defined for: " . get_called_class());
         }
 
         if (!$this->invoke_callback('before_destroy', false)) {
@@ -1245,7 +1245,7 @@ class Model
                 // set valid table data
                 try {
                     $this->$name = $value;
-                } catch (UndefinedPropertyException $e) {
+                } catch (Exceptions\UndefinedPropertyException $e) {
                     $exceptions[] = $e->getMessage();
                 }
             } else {
@@ -1260,7 +1260,7 @@ class Model
         }
 
         if (!empty($exceptions)) {
-            throw new UndefinedPropertyException(get_called_class(), $exceptions);
+            throw new Exceptions\UndefinedPropertyException(get_called_class(), $exceptions);
         }
     }
 
@@ -1277,7 +1277,7 @@ class Model
         $table = static::table();
 
         if (is_null($name)) {
-            throw new RelationshipException("Empty Relationship requested for class: {$table->class->getName()}");
+            throw new Exceptions\RelationshipException("Empty Relationship requested for class: {$table->class->getName()}");
         }
 
         if (($rel = $table->get_relationship($name))) {
@@ -1293,7 +1293,7 @@ class Model
             }
         }
 
-        throw new RelationshipException("Relationship named $name has not been declared for class: {$table->class->getName()}");
+        throw new Exceptions\RelationshipException("Relationship named $name has not been declared for class: {$table->class->getName()}");
     }
 
     /**
@@ -1386,7 +1386,7 @@ class Model
 
             // can't take any finders with OR in it when doing a find_or_create_by
             if (strpos($attributes, '_or_') !== false) {
-                throw new ActiveRecordException("Cannot use OR'd attributes in find_or_create_by");
+                throw new Exceptions\ActiveRecordException("Cannot use OR'd attributes in find_or_create_by");
             }
 
             $create = true;
@@ -1410,7 +1410,7 @@ class Model
             return static::count($options);
         }
 
-        throw new ActiveRecordException("Call to undefined method: $method");
+        throw new Exceptions\ActiveRecordException("Call to undefined method: $method");
     }
 
     /**
@@ -1443,7 +1443,7 @@ class Model
             }
         }
 
-        throw new ActiveRecordException("Call to undefined method: $method");
+        throw new Exceptions\ActiveRecordException("Call to undefined method: $method");
     }
 
     /**
@@ -1474,7 +1474,7 @@ class Model
         $options['select'] = 'COUNT(*)';
 
         if (!empty($args) && !is_null($args[0]) && !empty($args[0])) {
-            if (is_hash($args[0])) {
+            if (Utils::is_hash($args[0])) {
                 $options['conditions'] = $args[0];
             } else {
                 $options['conditions'] = call_user_func_array([static::class, 'pk_conditions'], $args);
@@ -1585,7 +1585,7 @@ class Model
         $class = get_called_class();
 
         if (func_num_args() <= 0) {
-            throw new RecordNotFound("Couldn't find $class without an ID");
+            throw new Exceptions\RecordNotFound("Couldn't find $class without an ID");
         }
 
         $args = func_get_args();
@@ -1669,7 +1669,7 @@ class Model
     public static function find_by_pk($values, $options)
     {
         if ($values === null) {
-            throw new RecordNotFound("Couldn't find " . get_called_class() . " without an ID");
+            throw new Exceptions\RecordNotFound("Couldn't find " . get_called_class() . " without an ID");
         }
 
         $table = static::table();
@@ -1689,10 +1689,10 @@ class Model
             }
 
             if ($expected == 1) {
-                throw new RecordNotFound("Couldn't find $class with ID=$values");
+                throw new Exceptions\RecordNotFound("Couldn't find $class with ID=$values");
             }
 
-            throw new RecordNotFound("Couldn't find all $class with IDs ($values) (found $results, but was looking for $expected)");
+            throw new Exceptions\RecordNotFound("Couldn't find all $class with IDs ($values) (found $results, but was looking for $expected)");
         }
         return $expected == 1 ? $list[0] : $list;
     }
@@ -1736,12 +1736,12 @@ class Model
      */
     public static function is_options_hash($array, $throw = true)
     {
-        if (is_hash($array)) {
+        if (Utils::is_hash($array)) {
             $keys = array_keys($array);
             $diff = array_diff($keys, self::$VALID_OPTIONS);
 
             if (!empty($diff) && $throw) {
-                throw new ActiveRecordException("Unknown key(s): " . join(', ', $diff));
+                throw new Exceptions\ActiveRecordException("Unknown key(s): " . join(', ', $diff));
             }
 
             $intersect = array_intersect($keys, self::$VALID_OPTIONS);
@@ -1786,8 +1786,8 @@ class Model
                     array_pop($array);
                     $options = $last;
                 }
-            } catch (ActiveRecordException $e) {
-                if (!is_hash($last)) {
+            } catch (Exceptions\ActiveRecordException $e) {
+                if (!Utils::is_hash($last)) {
                     throw $e;
                 }
 
@@ -1828,8 +1828,8 @@ class Model
    *
    * Ex:
    * <code>
-   * ActiveRecord\CsvSerializer::$delimiter=';';
-   * ActiveRecord\CsvSerializer::$enclosure='';
+   * ActiveRecord\Serializers\CsvSerializer::$delimiter=';';
+   * ActiveRecord\Serializers\CsvSerializer::$enclosure='';
    * YourModel::find('first')->to_csv(array('only'=>array('name','level')));
    * returns: Joe,2
    *
@@ -1877,8 +1877,7 @@ class Model
      */
     private function serialize($type, $options)
     {
-        require_once 'Serialization.php';
-        $class = "ActiveRecord\\{$type}Serializer";
+        $class = "ActiveRecord\\Serializers\\{$type}Serializer";
         $serializer = new $class($this, $options);
         return $serializer->to_s();
     }

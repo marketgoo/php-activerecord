@@ -1,22 +1,25 @@
 <?php
 
-class Venue extends ActiveRecord\Model
+namespace TestModels;
+
+use ActiveRecord\Model;
+
+class Venue extends Model
 {
     static $use_custom_get_state_getter = false;
     static $use_custom_set_state_setter = false;
 
-
-    static $has_many = array(
+    static $has_many = [
         'events',
-        array('hosts', 'through' => 'events')
-    );
+        ['hosts', 'through' => 'events']
+    ];
 
     static $has_one;
 
-    static $alias_attribute = array(
+    static $alias_attribute = [
         'marquee' => 'name',
         'mycity' => 'city'
-    );
+    ];
 
     public function get_state()
     {

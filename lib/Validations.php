@@ -12,6 +12,7 @@
 namespace ActiveRecord;
 
 use ActiveRecord\Model;
+use ActiveRecord\Exceptions\ValidationsArgumentError;
 use IteratorAggregate;
 use ArrayIterator;
 use Traversable;
@@ -116,7 +117,7 @@ class Validations
         foreach ($this->validators as $validate) {
             $attrs = $this->klass->getStaticPropertyValue($validate);
 
-            foreach (wrap_strings_in_arrays($attrs) as $attr) {
+            foreach (Utils::wrap_strings_in_arrays($attrs) as $attr) {
                 $field = $attr[0];
 
                 if (!isset($data[$field]) || !is_array($data[$field])) {
@@ -140,7 +141,7 @@ class Validations
     {
         foreach ($this->validators as $validate) {
             $definition = $this->klass->getStaticPropertyValue($validate);
-            $this->$validate(wrap_strings_in_arrays($definition));
+            $this->$validate(Utils::wrap_strings_in_arrays($definition));
         }
 
         $model_reflection = Reflections::instance()->get($this->model);
@@ -265,7 +266,7 @@ class Validations
             }
 
             if (!is_array($enum)) {
-                array($enum);
+                $enum = [$enum];
             }
 
             $message = str_replace('%s', $var ?: '', $options['message']);
@@ -471,13 +472,13 @@ class Validations
 
             switch (sizeof($range_options)) {
                 case 0:
-                    throw new  ValidationsArgumentError('Range unspecified.  Specify the [within], [maximum], or [is] option.');
+                    throw new ValidationsArgumentError('Range unspecified.  Specify the [within], [maximum], or [is] option.');
 
                 case 1:
                     break;
 
                 default:
-                    throw new  ValidationsArgumentError('Too many range options specified.  Choose only one.');
+                    throw new ValidationsArgumentError('Too many range options specified.  Choose only one.');
             }
 
             $attribute = $options[0];
@@ -489,7 +490,7 @@ class Validations
                 $range = $options[$range_options[0]];
 
                 if (!(Utils::is_a('range', $range))) {
-                    throw new  ValidationsArgumentError("$range_options[0] must be an array composing a range of numbers with key [0] being less than key [1]");
+                    throw new ValidationsArgumentError("$range_options[0] must be an array composing a range of numbers with key [0] being less than key [1]");
                 }
                 $range_options = array('minimum', 'maximum');
                 $attr['minimum'] = $range[0];
@@ -499,11 +500,11 @@ class Validations
                 $option = $attr[$range_option];
 
                 if ((int)$option <= 0) {
-                    throw new  ValidationsArgumentError("$range_option value cannot use a signed integer.");
+                    throw new ValidationsArgumentError("$range_option value cannot use a signed integer.");
                 }
 
                 if (is_float($option)) {
-                    throw new  ValidationsArgumentError("$range_option value cannot use a float for length.");
+                    throw new ValidationsArgumentError("$range_option value cannot use a float for length.");
                 }
 
                 if (!($range_option == 'maximum' && is_null($this->model->$attribute))) {

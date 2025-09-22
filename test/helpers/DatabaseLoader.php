@@ -1,5 +1,9 @@
 <?php
 
+namespace TestHelpers;
+
+use Exception;
+
 class DatabaseLoader
 {
     private $db;

@@ -1,5 +1,8 @@
 <?php
 
+use TestHelpers\DatabaseTest;
+use TestModels\Venue;
+
 class ModelCallbackTest extends DatabaseTest
 {
     protected $venue;

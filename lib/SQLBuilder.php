@@ -6,6 +6,8 @@
 
 namespace ActiveRecord;
 
+use ActiveRecord\Exceptions\ActiveRecordException;
+
 /**
  * Helper class for building sql statements progmatically.
  *
@@ -27,7 +29,7 @@ class SQLBuilder
 
     // for where
     private $where;
-    private $where_values = array();
+    private $where_values = [];
 
     // for insert/update
     private $data;
@@ -80,7 +82,7 @@ class SQLBuilder
      */
     public function bind_values()
     {
-        $ret = array();
+        $ret = [];
 
         if ($this->data) {
             $ret = array_values($this->data);
@@ -90,7 +92,7 @@ class SQLBuilder
             $ret = array_merge($ret, $this->get_where_values());
         }
 
-        return array_flatten($ret);
+        return Utils::array_flatten($ret);
     }
 
     public function get_where_values()
@@ -149,7 +151,7 @@ class SQLBuilder
 
     public function insert($hash, $pk = null, $sequence_name = null)
     {
-        if (!is_hash($hash)) {
+        if (!Utils::is_hash($hash)) {
             throw new ActiveRecordException('Inserting requires a hash.');
         }
 
@@ -157,7 +159,7 @@ class SQLBuilder
         $this->data = $hash;
 
         if ($pk && $sequence_name) {
-            $this->sequence = array($pk,$sequence_name);
+            $this->sequence = [$pk, $sequence_name];
         }
 
         return $this;
@@ -167,7 +169,7 @@ class SQLBuilder
     {
         $this->operation = 'UPDATE';
 
-        if (is_hash($mixed)) {
+        if (Utils::is_hash($mixed)) {
             $this->data = $mixed;
         } elseif (is_string($mixed)) {
             $this->update = $mixed;
@@ -220,7 +222,7 @@ class SQLBuilder
      * @param $map A hash of "mapped_column_name" => "real_column_name"
      * @return A conditions array in the form array(sql_string, value1, value2,...)
      */
-    public static function create_conditions_from_underscored_string(Connection $connection, $name, &$values = array(), &$map = null)
+    public static function create_conditions_from_underscored_string(Connection $connection, $name, &$values = [], &$map = null)
     {
         if (!$name) {
             return null;
@@ -228,11 +230,11 @@ class SQLBuilder
 
         $parts = preg_split('/(_and_|_or_)/i', $name, -1, PREG_SPLIT_DELIM_CAPTURE);
         $num_values = is_countable($values) ? count($values) : 0;
-        $conditions = array('');
+        $conditions = [''];
 
         for ($i = 0,$j = 0,$n = count($parts); $i < $n; $i += 2,++$j) {
             if ($i >= 2) {
-                $conditions[0] .= preg_replace(array('/_and_/i','/_or_/i'), array(' AND ',' OR '), $parts[$i - 1]);
+                $conditions[0] .= preg_replace(['/_and_/i', '/_or_/i'], [' AND ', ' OR '], $parts[$i - 1]);
             }
 
             if ($j < $num_values) {
@@ -262,10 +264,10 @@ class SQLBuilder
      * @param $map A hash of "mapped_column_name" => "real_column_name"
      * @return array A hash of array(name => value, ...)
      */
-    public static function create_hash_from_underscored_string($name, &$values = array(), &$map = null)
+    public static function create_hash_from_underscored_string($name, &$values = [], &$map = null)
     {
         $parts = preg_split('/(_and_|_or_)/i', $name);
-        $hash = array();
+        $hash = [];
 
         for ($i = 0,$n = count($parts); $i < $n; ++$i) {
             // map to correct name if $map was supplied
@@ -282,9 +284,9 @@ class SQLBuilder
      * @param array $hash
      * @return array $new
      */
-    private function prepend_table_name_to_fields($hash = array())
+    private function prepend_table_name_to_fields($hash = [])
     {
-        $new = array();
+        $new = [];
         $table = $this->connection->quote_name($this->table);
 
         foreach ($hash as $key => $value) {
@@ -300,11 +302,11 @@ class SQLBuilder
         require_once 'Expressions.php';
         $num_args = count($args);
 
-        if ($num_args == 1 && is_hash($args[0])) {
+        if ($num_args == 1 && Utils::is_hash($args[0])) {
             $hash = is_null($this->joins) ? $args[0] : $this->prepend_table_name_to_fields($args[0]);
             $e = new Expressions($this->connection, $hash);
             $this->where = $e->to_s();
-            $this->where_values = array_flatten($e->values());
+            $this->where_values = Utils::array_flatten($e->values());
         } elseif ($num_args > 0) {
             // if the values has a nested array then we'll need to use Expressions to expand the bind marker for us
             $values = array_slice($args, 1);
@@ -314,7 +316,7 @@ class SQLBuilder
                     $e = new Expressions($this->connection, $args[0]);
                     $e->bind_values($values);
                     $this->where = $e->to_s();
-                    $this->where_values = array_flatten($e->values());
+                    $this->where_values = Utils::array_flatten($e->values());
                     return;
                 }
             }
@@ -423,7 +425,7 @@ class SQLBuilder
 
     private function quoted_key_names()
     {
-        $keys = array();
+        $keys = [];
 
         foreach ($this->data as $key => $value) {
             $keys[] = $this->connection->quote_name($key);

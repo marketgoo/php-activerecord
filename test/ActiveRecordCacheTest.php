@@ -1,6 +1,7 @@
 <?php
 
 use ActiveRecord\Cache;
+use TestHelpers\DatabaseTest;
 
 class ActiveRecordCacheTest extends DatabaseTest
 {

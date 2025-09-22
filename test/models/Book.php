@@ -1,9 +1,13 @@
 <?php
 
-class Book extends ActiveRecord\Model
+namespace TestModels;
+
+use ActiveRecord\Model;
+
+class Book extends Model
 {
-    static $belongs_to = array('author');
-    static $has_one = array();
+    static $belongs_to = ['author'];
+    static $has_one = [];
     static $use_custom_get_name_getter = false;
 
     public function upper_name()

@@ -1,10 +1,10 @@
 <?php
 
-require_once __DIR__ . '/../lib/Expressions.php';
-
 use ActiveRecord\Expressions;
 use ActiveRecord\ConnectionManager;
 use ActiveRecord\DatabaseException;
+use ActiveRecord\Exceptions\ExpressionsException;
+use TestHelpers\SnakeCase_PHPUnit_Framework_TestCase;
 
 class ExpressionsTest extends SnakeCase_PHPUnit_Framework_TestCase
 {
@@ -55,7 +55,7 @@ class ExpressionsTest extends SnakeCase_PHPUnit_Framework_TestCase
 
     public function test_insufficient_variables()
     {
-        $this->expectException(ActiveRecord\ExpressionsException::class);
+        $this->expectException(ExpressionsException::class);
 
         $c = new Expressions(null, 'name=? and id=?', 'Tito');
         $c->to_s();
@@ -167,7 +167,7 @@ class ExpressionsTest extends SnakeCase_PHPUnit_Framework_TestCase
 
     public function test_bind_invalid_parameter_number()
     {
-        $this->expectException(ActiveRecord\ExpressionsException::class);
+        $this->expectException(ExpressionsException::class);
 
         $a = new Expressions(null, 'name=?');
         $a->bind(0, 99);

@@ -1,6 +1,8 @@
 <?php
 
-require_once __DIR__ . '/../lib/adapters/SqliteAdapter.php';
+use TestHelpers\AdapterTest;
+use ActiveRecord\Connection;
+use ActiveRecord\Exceptions\DatabaseException;
 
 class SqliteAdapterTest extends AdapterTest
 {
@@ -16,7 +18,6 @@ class SqliteAdapterTest extends AdapterTest
         @unlink(self::INVALID_DB);
     }
 
-
     public static function tearDownAfterClass(): void
     {
         parent::tearDownAfterClass();
@@ -26,9 +27,9 @@ class SqliteAdapterTest extends AdapterTest
     public function testConnectToInvalidDatabaseShouldNotCreateDbFile()
     {
         try {
-            ActiveRecord\Connection::instance("sqlite://" . self::INVALID_DB);
+            Connection::instance("sqlite://" . self::INVALID_DB);
             $this->assertFalse(true);
-        } catch (ActiveRecord\DatabaseException $e) {
+        } catch (DatabaseException $e) {
             $this->assertFalse(file_exists(__DIR__ . "/" . self::INVALID_DB));
         }
     }

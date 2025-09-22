@@ -1,8 +1,8 @@
 <?php
 
-use ActiveRecord\Column;
-
-require_once __DIR__ . '/../lib/adapters/PgsqlAdapter.php';
+use ActiveRecord\Config;
+use ActiveRecord\Connection;
+use TestHelpers\AdapterTest;
 
 class PgsqlAdapterTest extends AdapterTest
 {
@@ -34,8 +34,8 @@ class PgsqlAdapterTest extends AdapterTest
 
     public function test_set_charset()
     {
-        $connection_string = ActiveRecord\Config::instance()->get_connection($this->connection_name);
-        $conn = ActiveRecord\Connection::instance($connection_string . '?charset=utf8');
+        $connection_string = Config::instance()->get_connection($this->connection_name);
+        $conn = Connection::instance($connection_string . '?charset=utf8');
         $this->assert_equals("SET NAMES 'utf8'", $conn->last_query);
     }
 

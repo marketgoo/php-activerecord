@@ -1,6 +1,11 @@
 <?php
 
 use ActiveRecord\Cache;
+use ActiveRecord\Config;
+use TestModels\Author;
+use TestModels\Publisher;
+use ActiveRecord\Exceptions\CacheException;
+use TestHelpers\DatabaseTest;
 
 class CacheModelTest extends DatabaseTest
 {
@@ -12,8 +17,8 @@ class CacheModelTest extends DatabaseTest
         }
 
         try {
-            ActiveRecord\Config::instance()->set_cache('memcached://localhost');
-        } catch (ActiveRecord\CacheException $e) {
+            Config::instance()->set_cache('memcached://localhost');
+        } catch (CacheException $e) {
             $this->markTestSkipped('Unable to connect to memcached server');
         }
 

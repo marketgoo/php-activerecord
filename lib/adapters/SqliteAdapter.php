@@ -4,9 +4,15 @@
  * @package ActiveRecord
  */
 
-namespace ActiveRecord;
+namespace ActiveRecord\Adapters;
 
 use PDO;
+use ActiveRecord\Utils;
+use ActiveRecord\Column;
+use ActiveRecord\Connection;
+use ActiveRecord\Inflector;
+use ActiveRecord\Exceptions\DatabaseException;
+use ActiveRecord\Exceptions\ActiveRecordException;
 
 /**
  * Adapter for SQLite.
@@ -100,19 +106,19 @@ class SqliteAdapter extends Connection
 
     public function native_database_types()
     {
-        return array(
+        return [
             'primary_key' => 'integer not null primary key',
-            'string' => array('name' => 'varchar', 'length' => 255),
-            'text' => array('name' => 'text'),
-            'integer' => array('name' => 'integer'),
-            'float' => array('name' => 'float'),
-            'decimal' => array('name' => 'decimal'),
-            'datetime' => array('name' => 'datetime'),
-            'timestamp' => array('name' => 'datetime'),
-            'time' => array('name' => 'time'),
-            'date' => array('name' => 'date'),
-            'binary' => array('name' => 'blob'),
-            'boolean' => array('name' => 'boolean')
-        );
+            'string' => ['name' => 'varchar', 'length' => 255],
+            'text' => ['name' => 'text'],
+            'integer' => ['name' => 'integer'],
+            'float' => ['name' => 'float'],
+            'decimal' => ['name' => 'decimal'],
+            'datetime' => ['name' => 'datetime'],
+            'timestamp' => ['name' => 'datetime'],
+            'time' => ['name' => 'time'],
+            'date' => ['name' => 'date'],
+            'binary' => ['name' => 'blob'],
+            'boolean' => ['name' => 'boolean']
+        ];
     }
 }

@@ -19,12 +19,7 @@
 
 require_once 'vendor/autoload.php';
 
-require_once 'SnakeCase_PHPUnit_Framework_TestCase.php';
-
-require_once 'DatabaseTest.php';
-require_once 'AdapterTest.php';
-
-require_once __DIR__ . '/../../ActiveRecord.php';
+use TestHelpers\DatabaseTest;
 
 // whether or not to run the slow non-crucial tests
 $GLOBALS['slow_tests'] = false;
@@ -32,13 +27,13 @@ $GLOBALS['slow_tests'] = false;
 // whether or not to show warnings when Log or Memcache is missing
 $GLOBALS['show_warnings'] = true;
 
-
 if (getenv('LOG') !== 'false') {
     DatabaseTest::$log = true;
 }
 
 ActiveRecord\Config::initialize(function ($cfg) {
     $cfg->set_model_directory(realpath(__DIR__ . '/../models'));
+    $cfg->set_model_namespace("TestModels");
     $cfg->set_connections(array(
         'mysql'  => getenv('PHPAR_MYSQL')  ?: 'mysql://test:test@127.0.0.1/test',
         'pgsql'  => getenv('PHPAR_PGSQL')  ?: 'pgsql://test:test@127.0.0.1/test',
@@ -80,5 +75,3 @@ ActiveRecord\Config::initialize(function ($cfg) {
 });
 
 error_reporting(E_ALL);
-
-spl_autoload_register('activerecord_autoload');
