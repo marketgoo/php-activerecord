@@ -781,7 +781,7 @@ class Model
      * @param array $attributes Array of the models attributes
      * @param boolean $validate True if the validators should be run
      * @param boolean $guard_attributes Set to true to guard protected/non-accessible attributes
-     * @return Model
+     * @return mixed
      */
     public static function create($attributes, $validate = true, $guard_attributes = true)
     {
@@ -949,8 +949,8 @@ class Model
      * <li><b>order:</b> A SQL fragment for ordering such as: 'name asc', 'id desc, name asc' (MySQL & Sqlite only)</li>
      * </ul>
      *
-     * @params array $options
-     * return integer Number of rows affected
+     * @param array $options
+     * @return integer Number of rows affected
      */
     public static function delete_all($options = array())
     {
@@ -1005,8 +1005,8 @@ class Model
      * <li><b>order:</b> A SQL fragment for ordering such as: 'name asc', 'id desc, name asc' (MySQL & Sqlite only)</li>
      * </ul>
      *
-     * @params array $options
-     * return integer Number of rows affected
+     * @param array $options
+     * @return integer Number of rows affected
      */
     public static function update_all($options = array())
     {
@@ -1299,7 +1299,7 @@ class Model
     /**
      * Reloads the attributes and relationships of this object from the database.
      *
-     * @return Model
+     * @return mixed
      */
     public function reload()
     {
@@ -1508,7 +1508,7 @@ class Model
      * Alias for self::find('first').
      *
      * @see find
-     * @return Model The first matched record or null if not found
+     * @return mixed The first matched record or null if not found
      */
     public static function first(/* ... */)
     {
@@ -1519,7 +1519,7 @@ class Model
      * Alias for self::find('last')
      *
      * @see find
-     * @return Model The last matched record or null if not found
+     * @return mixed The last matched record or null if not found
      */
     public static function last(/* ... */)
     {
@@ -1663,7 +1663,7 @@ class Model
      * @see find
      * @param array $values An array containing values for the pk
      * @param array $options An options array
-     * @return Model
+     * @return mixed
      * @throws {@link RecordNotFound} if a record could not be found
      */
     public static function find_by_pk($values, $options)
