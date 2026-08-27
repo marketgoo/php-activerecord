@@ -172,7 +172,7 @@ class Config extends Singleton
      */
     public function get_connection($name)
     {
-        if (array_key_exists($name, $this->connections)) {
+        if (!is_null($name) && array_key_exists($name, $this->connections)) {
             return $this->connections[$name];
         }
 

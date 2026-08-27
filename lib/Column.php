@@ -163,7 +163,7 @@ class Column
             case self::INTEGER:
                 return static::castIntegerSafely($value);
             case self::DECIMAL:
-                return (double)$value;
+                return (float)$value;
             case self::DATETIME:
             case self::DATE:
                 if (!$value) {
