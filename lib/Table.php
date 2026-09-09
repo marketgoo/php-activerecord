@@ -8,7 +8,7 @@ namespace ActiveRecord;
 
 use ActiveRecord\Exceptions\RelationshipException;
 use ActiveRecord\Adapters\PgsqlAdapter;
-    
+
 /**
  * Manages reading and writing to a database table.
  *
@@ -519,7 +519,6 @@ class Table
 
     private function set_associations()
     {
-        // require_once __DIR__ . '/Relationship.php';
         $namespace = $this->class->getNamespaceName();
 
         foreach ($this->class->getStaticProperties() as $name => $definitions) {

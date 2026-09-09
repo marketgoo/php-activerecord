@@ -20,7 +20,8 @@
     "autoload-dev": {
         "psr-4": {
             "TestHelpers\\": "test/helpers",
-            "TestModels\\": "test/models"
+            "TestModels\\": "test/models",
+            "foo\\bar\\biz\\": "test/models/biz"
         }
     }
 }

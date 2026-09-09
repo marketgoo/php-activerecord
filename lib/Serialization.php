@@ -6,6 +6,8 @@
 
 namespace ActiveRecord;
 
+use ActiveRecord\Exceptions\UndefinedPropertyException;
+
 /**
  * Base class for Model serializers.
  *

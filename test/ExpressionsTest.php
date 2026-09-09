@@ -2,7 +2,7 @@
 
 use ActiveRecord\Expressions;
 use ActiveRecord\ConnectionManager;
-use ActiveRecord\DatabaseException;
+use ActiveRecord\Exceptions\DatabaseException;
 use ActiveRecord\Exceptions\ExpressionsException;
 use TestHelpers\SnakeCase_PHPUnit_Framework_TestCase;
 

@@ -7,6 +7,7 @@
 namespace ActiveRecord;
 
 use ReflectionClass;
+use ActiveRecord\Exceptions\ActiveRecordException;
 
 /**
  * Simple class that caches reflections of classes.

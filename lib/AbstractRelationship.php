@@ -379,5 +379,3 @@ abstract class AbstractRelationship implements RelationshipInterface
      */
     abstract public function load(Model $model);
 }
-
-

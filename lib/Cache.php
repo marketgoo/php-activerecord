@@ -3,6 +3,7 @@
 namespace ActiveRecord;
 
 use Closure;
+use ActiveRecord\Exceptions\CacheException;
 
 /**
  * Cache::get('the-cache-key', function() {
@@ -27,7 +28,7 @@ class Cache
      *
      * Ex:
      * $cfg_ar = ActiveRecord\Config::instance();
-     * $cfg_ar->set_cache('memcache://localhost:11211',array(
+     * $cfg_ar->set_cache('memcached://localhost:11211',array(
      *     'namespace' => 'my_cool_app',
      *     'expire'        => 120
      * ));
@@ -44,9 +45,12 @@ class Cache
     {
         if ($url) {
             $url = parse_url($url);
-            $file = ucwords(Inflector::instance()->camelize($url['scheme']));
-            $class = "ActiveRecord\\$file";
-            require_once __DIR__ . "/cache/$file.php";
+            $class = __NAMESPACE__ . '\\Cache\\' . ucwords(Inflector::instance()->camelize($url['scheme']));
+
+            if (!class_exists($class)) {
+                throw new CacheException("Unsupported cache adapter: {$url['scheme']}");
+            }
+
             static::$adapter = new $class($url);
         } else {
             static::$adapter = null;
