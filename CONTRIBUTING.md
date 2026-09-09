@@ -51,8 +51,9 @@ PHPAR_PGSQL=pgsql://test:test@127.0.0.1:54318/test \
 vendor/bin/phpunit
 ```
 
-Ports follow the version: `mysql57` is 33057, `mysql80` is 33080, `mysql84` is 33084, `pgsql14` is 54314,
-`pgsql16` is 54316 and `pgsql18` is 54318. The containers keep their data on tmpfs and skip fsyncs, so
+Ports follow the version: `mysql57` is 33057, `mysql80` is 33080, `mysql84` is 33084, `mariadb1011` is
+33111, `mariadb118` is 33118, `mariadb123` is 33123, `pgsql14` is 54314, `pgsql16` is 54316 and `pgsql18`
+is 54318. MariaDB uses the MySQL adapter, so point `PHPAR_MYSQL` at it. The containers keep their data on tmpfs and skip fsyncs, so
 they start empty every time and run fast even when Docker lives inside a VM.
 
 You also need the PHP extensions `pdo_mysql`, `pdo_pgsql`, `pdo_sqlite` and `memcached`.
@@ -61,5 +62,5 @@ You also need the PHP extensions `pdo_mysql`, `pdo_pgsql`, `pdo_sqlite` and `mem
 
 `.github/workflows/tests.yml` runs the suite on GitHub Actions against a small matrix: a baseline of
 PHP 8.4, MySQL 8.4 and PostgreSQL 18, plus one job per other supported version of each, changing a
-single axis at a time. The PostgreSQL rows run the model-level tests with PostgreSQL as the default
-adapter. Update the matrix when a PHP or database version reaches end of life.
+single axis at a time, and three MariaDB versions through the MySQL adapter. The PostgreSQL rows run
+the model-level tests with PostgreSQL as the default adapter. Update the matrix when a PHP or database version reaches end of life.

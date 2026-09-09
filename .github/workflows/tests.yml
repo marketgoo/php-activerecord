@@ -6,7 +6,7 @@ on:
 
 jobs:
   phpunit:
-    name: PHP ${{ matrix.php }} / MySQL ${{ matrix.mysql }} / PostgreSQL ${{ matrix.pgsql }} / default ${{ matrix.adapter || 'mysql' }}
+    name: PHP ${{ matrix.php }} / ${{ matrix.mariadb && format('MariaDB {0}', matrix.mariadb) || format('MySQL {0}', matrix.mysql) }} / PostgreSQL ${{ matrix.pgsql }} / default ${{ matrix.adapter || 'mysql' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -21,6 +21,11 @@ jobs:
           # MySQL axis
           - { php: '8.4', mysql: '5.7', pgsql: '18' }
           - { php: '8.4', mysql: '8.0', pgsql: '18' }
+          # MariaDB, through the same adapter: 10.11 (Debian 12, Ubuntu 24.04,
+          # RHEL 9/10), 11.8 (Debian 13) and the current 12.3 LTS.
+          - { php: '8.4', mariadb: '10.11', pgsql: '18' }
+          - { php: '8.4', mariadb: '11.8', pgsql: '18' }
+          - { php: '8.4', mariadb: '12.3', pgsql: '18' }
           # PostgreSQL axis, with PostgreSQL as the default adapter
           - { php: '8.4', mysql: '8.4', pgsql: '14', adapter: pgsql }
           - { php: '8.4', mysql: '8.4', pgsql: '16', adapter: pgsql }
@@ -35,7 +40,8 @@ jobs:
     # network-backed disk. The databases are throwaway, so nothing is lost.
     services:
       mysql:
-        image: mysql:${{ matrix.mysql }}
+        # The MariaDB image accepts the MYSQL_* variables and speaks the same protocol.
+        image: ${{ matrix.mariadb && format('mariadb:{0}', matrix.mariadb) || format('mysql:{0}', matrix.mysql) }}
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: test
@@ -45,7 +51,7 @@ jobs:
           - 3306:3306
         options: >-
           --tmpfs /var/lib/mysql:rw
-          --health-cmd "mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-cmd "${{ matrix.mariadb && 'healthcheck.sh --connect --innodb_initialized' || 'mysqladmin ping -h 127.0.0.1 -uroot -proot' }}"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 20

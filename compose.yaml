@@ -44,6 +44,18 @@ services:
     <<: *mysql
     image: mysql:8.4
     ports: ["127.0.0.1:33084:3306"]
+  mariadb1011:
+    <<: *mysql
+    image: mariadb:10.11
+    ports: ["127.0.0.1:33111:3306"]
+  mariadb118:
+    <<: *mysql
+    image: mariadb:11.8
+    ports: ["127.0.0.1:33118:3306"]
+  mariadb123:
+    <<: *mysql
+    image: mariadb:12.3
+    ports: ["127.0.0.1:33123:3306"]
 
   pgsql14:
     <<: *pgsql
