@@ -1658,6 +1658,17 @@ class Model
 
         $table = static::table();
 
+        // A non-numeric value cannot match an integer key. MySQL silently coerces
+        // it to 0; PostgreSQL rejects the bound value with a type error.
+        $pk_column = $table->columns[$table->pk[0]] ?? null;
+        if ($pk_column && $pk_column->type == Column::INTEGER) {
+            foreach ((array)$values as $value) {
+                if (!is_numeric($value)) {
+                    throw new Exceptions\RecordNotFound("Couldn't find " . get_called_class() . " with ID=$value");
+                }
+            }
+        }
+
         if ($table->cache_individual_model) {
             $list = static::get_models_from_cache($values, $options);
         } else {

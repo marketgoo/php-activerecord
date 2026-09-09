@@ -195,7 +195,7 @@ class Table
                     $options['conditions'] = $this->map_names($options['conditions'], $options['mapped_names']);
                 }
 
-                $sql->where($options['conditions']);
+                $sql->where($this->map_column_names($options['conditions']));
             }
         }
 
@@ -314,6 +314,24 @@ class Table
             }
         }
         return null;
+    }
+
+    /**
+     * Returns the real column name for an attribute name, resolving inflected
+     * names such as some_date for a some_Date column. Databases that preserve
+     * identifier case, like PostgreSQL, reject the inflected name once quoted.
+     *
+     * @param string $name Attribute or column name
+     * @return string
+     */
+    public function column_name_for($name)
+    {
+        if (isset($this->columns[$name])) {
+            return $name;
+        }
+
+        $column = $this->get_column_by_inflected_name($name);
+        return $column ? $column->name : $name;
     }
 
     public function get_fully_qualified_table_name($quote_name = true)
@@ -437,6 +455,17 @@ class Table
         return $ret;
     }
 
+    private function map_column_names($hash)
+    {
+        $ret = array();
+
+        foreach ($hash as $name => $value) {
+            $ret[$this->column_name_for($name)] = $value;
+        }
+
+        return $ret;
+    }
+
     private function &process_data($hash)
     {
         if (!$hash) {
@@ -444,18 +473,23 @@ class Table
         }
 
         $date_class = Config::instance()->get_date_class();
-        foreach ($hash as $name => &$value) {
+        $ret = array();
+
+        foreach ($hash as $name => $value) {
+            $name = $this->column_name_for($name);
+
             if ($value instanceof $date_class || $value instanceof \DateTime) {
                 if (isset($this->columns[$name]) && $this->columns[$name]->type == Column::DATE) {
-                    $hash[$name] = $this->conn->date_to_string($value);
+                    $value = $this->conn->date_to_string($value);
                 } else {
-                    $hash[$name] = $this->conn->datetime_to_string($value);
+                    $value = $this->conn->datetime_to_string($value);
                 }
-            } else {
-                $hash[$name] = $value;
             }
+
+            $ret[$name] = $value;
         }
-        return $hash;
+
+        return $ret;
     }
 
     private function set_primary_key()

@@ -124,6 +124,8 @@ class Expressions
     private function build_sql_from_hash(&$hash, $glue)
     {
         $sql = $g = "";
+        $values = array();
+
         foreach ($hash as $name => $value) {
             if ($this->connection) {
                 $name = $this->connection->quote_name($name);
@@ -131,15 +133,18 @@ class Expressions
 
             if (is_array($value)) {
                 $sql .= "$g$name IN(?)";
+                $values[] = $value;
             } elseif (is_null($value)) {
-                $sql .= "$g$name IS ?";
+                // A literal, not a bound NULL: PostgreSQL rejects "IS $1".
+                $sql .= "$g$name IS NULL";
             } else {
                 $sql .= "$g$name=?";
+                $values[] = $value;
             }
 
             $g = $glue;
         }
-        return array($sql,array_values($hash));
+        return array($sql, $values);
     }
 
     private function substitute(&$values, $substitute, $pos, $parameter_index)

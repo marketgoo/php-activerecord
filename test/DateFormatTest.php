@@ -12,7 +12,7 @@ class DateFormatTest extends DatabaseTest
         $author->some_date = new \DateTime();
         $author->save();
 
-        $author = Author::first();
+        $author = Author::find($author->id);
         $this->assert_is_a("ActiveRecord\\DateTime", $author->some_date);
     }
 }

@@ -127,6 +127,9 @@ abstract class AbstractRelationship implements RelationshipInterface
      */
     protected function query_and_attach_related_models_eagerly(Table $table, $models, $attributes, $includes = array(), $query_keys = array(), $model_values_keys = array())
     {
+        // Query the related table by its real column names; the relationship keys are inflected.
+        $query_keys = array_map([$this->get_table(), 'column_name_for'], (array)$query_keys);
+
         $values = array();
         $options = $this->options;
         $inflector = Inflector::instance();

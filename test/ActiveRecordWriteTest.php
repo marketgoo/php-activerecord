@@ -385,14 +385,23 @@ class ActiveRecordWriteTest extends DatabaseTest
     public function test_update_all_with_set_as_string()
     {
         $num_affected = Author::update_all(array('set' => 'parent_author_id = 2'));
-        $this->assert_equals(2, $num_affected);
+        $this->assert_equals($this->expected_update_all_count(), $num_affected);
         $this->assert_equals(4, Author::count_by_parent_author_id(2));
     }
 
     public function test_update_all_with_set_as_hash()
     {
         $num_affected = Author::update_all(array('set' => array('parent_author_id' => 2)));
-        $this->assert_equals(2, $num_affected);
+        $this->assert_equals($this->expected_update_all_count(), $num_affected);
+    }
+
+    /**
+     * Four authors match the update above, but two already have parent_author_id = 2.
+     * MySQL reports rows changed (2) by default; PostgreSQL and SQLite report rows matched (4).
+     */
+    private function expected_update_all_count()
+    {
+        return $this->conn->protocol == 'mysql' ? 2 : 4;
     }
 
     /**
@@ -406,7 +415,7 @@ class ActiveRecordWriteTest extends DatabaseTest
 
     public function test_update_all_with_conditions_as_string()
     {
-        $num_affected = Author::update_all(array('set' => 'parent_author_id = 2', 'conditions' => 'name = "Tito"'));
+        $num_affected = Author::update_all(array('set' => 'parent_author_id = 2', 'conditions' => "name = 'Tito'"));
         $this->assert_equals(1, $num_affected);
     }
 
