@@ -7,6 +7,7 @@
 namespace ActiveRecord;
 
 use ActiveRecord\Exceptions\RelationshipException;
+use ActiveRecord\Adapters\PgsqlAdapter;
     
 /**
  * Manages reading and writing to a database table.
