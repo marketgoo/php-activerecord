@@ -6,22 +6,25 @@ on:
 
 jobs:
   phpunit:
-    name: PHP ${{ matrix.php }} / MySQL ${{ matrix.mysql }} / PostgreSQL ${{ matrix.pgsql }}
+    name: PHP ${{ matrix.php }} / MySQL ${{ matrix.mysql }} / PostgreSQL ${{ matrix.pgsql }} / default ${{ matrix.adapter || 'mysql' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       # One baseline (PHP 8.4, MySQL 8.4, PostgreSQL 18); every other job
       # changes exactly one axis so a failure points at a single variable.
-      # SQLite is bundled with each PHP build and is exercised in every job.
+      # The model-level tests run against the default adapter (PHPAR_ADAPTER),
+      # MySQL unless a row says otherwise; the adapter tests always cover all
+      # three. SQLite is bundled with each PHP build and is exercised in every job.
       matrix:
         include:
           - { php: '8.4', mysql: '8.4', pgsql: '18' }
           # MySQL axis
           - { php: '8.4', mysql: '5.7', pgsql: '18' }
           - { php: '8.4', mysql: '8.0', pgsql: '18' }
-          # PostgreSQL axis
-          - { php: '8.4', mysql: '8.4', pgsql: '14' }
-          - { php: '8.4', mysql: '8.4', pgsql: '16' }
+          # PostgreSQL axis, with PostgreSQL as the default adapter
+          - { php: '8.4', mysql: '8.4', pgsql: '14', adapter: pgsql }
+          - { php: '8.4', mysql: '8.4', pgsql: '16', adapter: pgsql }
+          - { php: '8.4', mysql: '8.4', pgsql: '18', adapter: pgsql }
           # PHP axis
           - { php: '8.2', mysql: '8.4', pgsql: '18' }
           - { php: '8.3', mysql: '8.4', pgsql: '18' }
@@ -72,7 +75,7 @@ jobs:
           - 11211:11211
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up PHP ${{ matrix.php }}
         uses: shivammathur/setup-php@v2
@@ -87,5 +90,6 @@ jobs:
       - name: Run tests
         run: vendor/bin/phpunit
         env:
+          PHPAR_ADAPTER: ${{ matrix.adapter || 'mysql' }}
           PHPAR_MYSQL: mysql://test:test@127.0.0.1/test
           PHPAR_PGSQL: pgsql://test:test@127.0.0.1/test

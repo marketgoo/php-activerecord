@@ -38,7 +38,8 @@ vendor/bin/phpunit --display-skipped
 
 The suite connects to `mysql://test:test@127.0.0.1/test` and `pgsql://test:test@127.0.0.1/test` by
 default, and to memcached on `localhost:11211`. Override the database locations with the `PHPAR_MYSQL`,
-`PHPAR_PGSQL` and `PHPAR_SQLITE` environment variables.
+`PHPAR_PGSQL` and `PHPAR_SQLITE` environment variables. The model-level tests run against MySQL unless
+`PHPAR_ADAPTER` names another connection (`pgsql` or `sqlite`); the adapter tests always cover all three.
 
 The easiest way to get the servers is Docker. `compose.yaml` defines the same versions that CI tests,
 each on its own port, so you can run several side by side:
@@ -60,4 +61,5 @@ You also need the PHP extensions `pdo_mysql`, `pdo_pgsql`, `pdo_sqlite` and `mem
 
 `.github/workflows/tests.yml` runs the suite on GitHub Actions against a small matrix: a baseline of
 PHP 8.4, MySQL 8.4 and PostgreSQL 18, plus one job per other supported version of each, changing a
-single axis at a time. Update the matrix when a PHP or database version reaches end of life.
+single axis at a time. The PostgreSQL rows run the model-level tests with PostgreSQL as the default
+adapter. Update the matrix when a PHP or database version reaches end of life.
