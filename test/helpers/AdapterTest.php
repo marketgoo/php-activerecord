@@ -11,6 +11,7 @@ use ActiveRecord\Connection;
 use ActiveRecord\Adapters\SqliteAdapter;
 use ActiveRecord\Exceptions\DatabaseException;
 use TestHelpers\DatabaseTest;
+use TestModels\Author;
 
 class AdapterTest extends DatabaseTest
 {
@@ -421,17 +422,25 @@ class AdapterTest extends DatabaseTest
     public function test_datetime_to_string()
     {
         $datetime = '2009-01-01 01:01:01 EST';
-        $expected_datetime = '2009-01-01 01:01:01-05:00';
-
-        if ($this->conn->protocol == 'mysql') {
-            // Time zone offsets in DATETIME literals need MySQL 8.0.19 or later.
-            $version = $this->conn->connection->getAttribute(PDO::ATTR_SERVER_VERSION);
-            if (stripos($version, 'mariadb') !== false || version_compare($version, '8.0.19', '<')) {
-                $expected_datetime = '2009-01-01 01:01:01';
-            }
-        }
-
+        $expected_datetime = '2009-01-01 01:01:01';
         $this->assert_equals($expected_datetime, $this->conn->datetime_to_string(date_create($datetime)));
+    }
+
+    public function test_datetime_round_trip_keeps_wall_clock_time_in_any_timezone()
+    {
+        $original_timezone = date_default_timezone_get();
+        date_default_timezone_set('Europe/Madrid');
+
+        try {
+            $author = Author::find(1);
+            $author->created_at = new \DateTime('2026-09-09 18:00:00');
+            $author->save();
+
+            $reloaded = Author::find(1);
+            $this->assert_equals('2026-09-09 18:00:00 +02:00', $reloaded->created_at->format('Y-m-d H:i:s P'));
+        } finally {
+            date_default_timezone_set($original_timezone);
+        }
     }
 
     public function test_date_to_string()

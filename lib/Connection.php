@@ -68,10 +68,16 @@ abstract class Connection
     public static $date_format = 'Y-m-d';
 
     /**
-     * Database's datetime format
+     * Database's datetime format.
+     *
+     * Deliberately carries no time zone offset: MySQL before 8.0.19, MariaDB
+     * and SQLite do not understand one, and MySQL 8.0.19+ would convert the
+     * value to the session time zone, so a value would only round-trip when
+     * that matches PHP's. Plain wall-clock time behaves the same everywhere.
+     *
      * @var string
      */
-    public static $datetime_format = 'Y-m-d H:i:sP';
+    public static $datetime_format = 'Y-m-d H:i:s';
 
     /**
      * Default PDO options to set for each connection.

@@ -19,8 +19,6 @@ class MysqlAdapter extends Connection
 {
     static $DEFAULT_PORT = 3306;
 
-    private $supports_datetime_offsets;
-
     public function limit($sql, $offset, $limit)
     {
         $offset = is_null($offset) ? '' : intval($offset) . ',';
@@ -70,31 +68,6 @@ class MysqlAdapter extends Connection
         $c->default = $c->cast($column['default'], $this);
 
         return $c;
-    }
-
-    /**
-     * MySQL accepts a time zone offset in DATETIME literals only since 8.0.19.
-     * Older servers, and MariaDB, reject the offset under the default strict
-     * sql_mode, so they get the plain wall-clock value instead.
-     */
-    public function datetime_to_string($datetime)
-    {
-        if ($this->supports_datetime_offsets()) {
-            return parent::datetime_to_string($datetime);
-        }
-
-        return $datetime->format('Y-m-d H:i:s');
-    }
-
-    private function supports_datetime_offsets()
-    {
-        if ($this->supports_datetime_offsets === null) {
-            $version = (string)$this->connection->getAttribute(\PDO::ATTR_SERVER_VERSION);
-            $this->supports_datetime_offsets = stripos($version, 'mariadb') === false
-                && version_compare($version, '8.0.19', '>=');
-        }
-
-        return $this->supports_datetime_offsets;
     }
 
     public function set_encoding($charset)
