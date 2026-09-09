@@ -51,16 +51,16 @@ class CacheModelTest extends DatabaseTest
 
     public function test_cache_key()
     {
-        $method = $this->set_method_public('Author', 'cache_key');
+        $method = $this->set_method_public(Author::class, 'cache_key');
         $author = Author::first();
 
-        $this->assert_equals("Author-1", $method->invokeArgs($author, array()));
+        $this->assert_equals(Author::class . "-1", $method->invokeArgs($author, array()));
     }
 
     public function test_model_cache_find_by_pk()
     {
         $publisher = Publisher::find(1);
-        $method = $this->set_method_public('Publisher', 'cache_key');
+        $method = $this->set_method_public(Publisher::class, 'cache_key');
         $cache_key = $method->invokeArgs($publisher, array());
         $from_cache = Cache::$adapter->read($cache_key);
 
@@ -74,7 +74,7 @@ class CacheModelTest extends DatabaseTest
         ));
         $publisher->save();
 
-        $method = $this->set_method_public('Publisher', 'cache_key');
+        $method = $this->set_method_public(Publisher::class, 'cache_key');
         $cache_key = $method->invokeArgs($publisher, array());
 
         // Model is cached on first find
@@ -86,7 +86,7 @@ class CacheModelTest extends DatabaseTest
 
     public function test_model_cache_find()
     {
-        $method = $this->set_method_public('Publisher', 'cache_key');
+        $method = $this->set_method_public(Publisher::class, 'cache_key');
         $publishers = Publisher::all();
 
         foreach ($publishers as $publisher) {
@@ -99,7 +99,7 @@ class CacheModelTest extends DatabaseTest
 
     public function test_regular_models_not_cached()
     {
-        $method = $this->set_method_public('Author', 'cache_key');
+        $method = $this->set_method_public(Author::class, 'cache_key');
         $author = Author::first();
         $cache_key = $method->invokeArgs($author, array());
         $this->assertFalse(Cache::$adapter->read($cache_key));
@@ -107,7 +107,7 @@ class CacheModelTest extends DatabaseTest
 
     public function test_model_delete_from_cache()
     {
-        $method = $this->set_method_public('Publisher', 'cache_key');
+        $method = $this->set_method_public(Publisher::class, 'cache_key');
         $publisher = Publisher::find(1);
         $cache_key = $method->invokeArgs($publisher, array());
 
@@ -119,7 +119,7 @@ class CacheModelTest extends DatabaseTest
 
     public function test_model_update_cache()
     {
-        $method = $this->set_method_public('Publisher', 'cache_key');
+        $method = $this->set_method_public(Publisher::class, 'cache_key');
 
         $publisher = Publisher::find(1);
         $cache_key = $method->invokeArgs($publisher, array());
@@ -140,7 +140,7 @@ class CacheModelTest extends DatabaseTest
 
     public function test_model_reload_expires_cache()
     {
-        $method = $this->set_method_public('Publisher', 'cache_key');
+        $method = $this->set_method_public(Publisher::class, 'cache_key');
 
         $publisher = Publisher::find(1);
         $cache_key = $method->invokeArgs($publisher, array());
