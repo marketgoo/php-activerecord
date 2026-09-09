@@ -108,7 +108,7 @@ class AdapterTest extends DatabaseTest
         $name = $config->get_default_connection();
         $url = parse_url($config->get_connection($name));
         $conn = $this->conn;
-        $port = $conn::$DEFAULT_PORT;
+        $port = $url['port'] ?? $conn::$DEFAULT_PORT;
 
         $connection_string = "{$url['scheme']}://{$url['user']}";
         if (isset($url['pass'])) {
@@ -429,6 +429,15 @@ class AdapterTest extends DatabaseTest
     {
         $datetime = '2009-01-01 01:01:01 EST';
         $expected_datetime = '2009-01-01 01:01:01-05:00';
+
+        if ($this->conn->protocol == 'mysql') {
+            // Time zone offsets in DATETIME literals need MySQL 8.0.19 or later.
+            $version = $this->conn->connection->getAttribute(PDO::ATTR_SERVER_VERSION);
+            if (stripos($version, 'mariadb') !== false || version_compare($version, '8.0.19', '<')) {
+                $expected_datetime = '2009-01-01 01:01:01';
+            }
+        }
+
         $this->assert_equals($expected_datetime, $this->conn->datetime_to_string(date_create($datetime)));
     }
 

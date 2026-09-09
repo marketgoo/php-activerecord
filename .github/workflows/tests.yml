@@ -1,0 +1,91 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  phpunit:
+    name: PHP ${{ matrix.php }} / MySQL ${{ matrix.mysql }} / PostgreSQL ${{ matrix.pgsql }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      # One baseline (PHP 8.4, MySQL 8.4, PostgreSQL 18); every other job
+      # changes exactly one axis so a failure points at a single variable.
+      # SQLite is bundled with each PHP build and is exercised in every job.
+      matrix:
+        include:
+          - { php: '8.4', mysql: '8.4', pgsql: '18' }
+          # MySQL axis
+          - { php: '8.4', mysql: '5.7', pgsql: '18' }
+          - { php: '8.4', mysql: '8.0', pgsql: '18' }
+          # PostgreSQL axis
+          - { php: '8.4', mysql: '8.4', pgsql: '14' }
+          - { php: '8.4', mysql: '8.4', pgsql: '16' }
+          # PHP axis
+          - { php: '8.2', mysql: '8.4', pgsql: '18' }
+          - { php: '8.3', mysql: '8.4', pgsql: '18' }
+          - { php: '8.5', mysql: '8.4', pgsql: '18' }
+
+    # Data directories live on tmpfs: the suite commits tens of thousands of
+    # tiny transactions and each one fsyncs, which is slow on the runner's
+    # network-backed disk. The databases are throwaway, so nothing is lost.
+    services:
+      mysql:
+        image: mysql:${{ matrix.mysql }}
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: test
+          MYSQL_USER: test
+          MYSQL_PASSWORD: test
+        ports:
+          - 3306:3306
+        options: >-
+          --tmpfs /var/lib/mysql:rw
+          --health-cmd "mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+      postgres:
+        image: postgres:${{ matrix.pgsql }}
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test
+          # Keep the data directory on the tmpfs above. The image default is a
+          # declared volume (/var/lib/postgresql/data up to 17, a versioned
+          # subdirectory from 18), and 18 refuses a mount at the old path.
+          PGDATA: /var/lib/postgresql/pgdata
+        ports:
+          - 5432:5432
+        options: >-
+          --tmpfs /var/lib/postgresql:rw
+          --health-cmd "pg_isready -h 127.0.0.1 -U test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+      memcached:
+        image: memcached:1.6-alpine
+        ports:
+          - 11211:11211
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: pdo_mysql, pdo_pgsql, pdo_sqlite, memcached
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Run tests
+        run: vendor/bin/phpunit
+        env:
+          PHPAR_MYSQL: mysql://test:test@127.0.0.1/test
+          PHPAR_PGSQL: pgsql://test:test@127.0.0.1/test
