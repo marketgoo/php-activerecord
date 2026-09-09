@@ -1,7 +1,7 @@
 <?php
 
-use foo\bar\biz\User;
-use foo\bar\biz\Newsletter;
+use TestModels\Biz\User;
+use TestModels\Biz\Newsletter;
 use TestModels\Venue;
 use TestHelpers\DatabaseTest;
 
@@ -14,12 +14,12 @@ class HasManyThroughTest extends DatabaseTest
 
         $this->assert_equals($newsletter->id, $user->newsletters[0]->id);
         $this->assert_equals(
-            'foo\bar\biz\Newsletter',
+            Newsletter::class,
             get_class($user->newsletters[0])
         );
         $this->assert_equals($user->id, $newsletter->users[0]->id);
         $this->assert_equals(
-            'foo\bar\biz\User',
+            User::class,
             get_class($newsletter->users[0])
         );
     }

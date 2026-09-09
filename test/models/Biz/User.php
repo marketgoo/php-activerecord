@@ -1,6 +1,6 @@
 <?php
 
-namespace foo\bar\biz;
+namespace TestModels\Biz;
 
 use ActiveRecord\Model;
 
