@@ -29,8 +29,8 @@ vendor/bin/phpunit test/InflectorTest.php
 
 #### Databases ####
 
-Most tests need a MySQL server, and the PostgreSQL, memcached and Oracle tests are skipped when their
-server or PHP extension is missing. To see why a test was skipped:
+Most tests need a MySQL server, and the PostgreSQL and memcached tests are skipped when their server
+or PHP extension is missing. To see why a test was skipped:
 
 ```sh
 vendor/bin/phpunit --display-skipped

@@ -27,10 +27,6 @@ class DatabaseLoader
     public function reset_table_data()
     {
         foreach ($this->get_fixture_tables() as $table) {
-            if ($this->db->protocol == 'oci' && $table == 'rm-bldg') {
-                continue;
-            }
-
             $this->db->query('DELETE FROM ' . $this->quote_name($table));
             $this->load_fixture_data($table);
         }
@@ -48,24 +44,8 @@ class DatabaseLoader
         $tables = $this->db->tables();
 
         foreach ($this->get_fixture_tables() as $table) {
-            if ($this->db->protocol == 'oci') {
-                $table = strtoupper($table);
-
-                if ($table == 'RM-BLDG') {
-                    continue;
-                }
-            }
-
             if (in_array($table, $tables)) {
                 $this->db->query('DROP TABLE ' . $this->quote_name($table));
-            }
-
-            if ($this->db->protocol == 'oci') {
-                try {
-                    $this->db->query("DROP SEQUENCE {$table}_seq");
-                } catch (ActiveRecord\DatabaseException $e) {
-                    // ignore
-                }
             }
         }
     }
@@ -126,10 +106,6 @@ class DatabaseLoader
 
     public function quote_name($name)
     {
-        if ($this->db->protocol == 'oci') {
-            $name = strtoupper($name);
-        }
-
         return $this->db->quote_name($name);
     }
 }

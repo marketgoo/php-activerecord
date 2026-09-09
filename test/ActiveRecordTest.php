@@ -9,7 +9,6 @@ use TestModels\AwesomePerson;
 use TestModels\BookAttrAccessible;
 use ActiveRecord\Table;
 use ActiveRecord\Config;
-use ActiveRecord\Adapters\OciAdapter;
 use ActiveRecord\Exceptions\ReadonlyException;
 use ActiveRecord\Exceptions\ActiveRecordException;
 use ActiveRecord\Exceptions\UndefinedPropertyException;
@@ -132,20 +131,12 @@ class ActiveRecordTest extends DatabaseTest
 
     public function test_hyphenated_column_names_to_underscore()
     {
-        if ($this->conn instanceof OciAdapter) {
-            return;
-        }
-
         $keys = array_keys(RmBldg::first()->attributes());
         $this->assert_true(in_array('rm_name', $keys));
     }
 
     public function test_column_names_with_spaces()
     {
-        if ($this->conn instanceof OciAdapter) {
-            return;
-        }
-
         $keys = array_keys(RmBldg::first()->attributes());
         $this->assert_true(in_array('space_out', $keys));
     }

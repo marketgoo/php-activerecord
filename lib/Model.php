@@ -834,20 +834,13 @@ class Model
         $use_sequence = false;
 
         if ($table->sequence && !isset($attributes[$pk])) {
-            if (($conn = static::connection()) instanceof OciAdapter) {
-                // terrible oracle makes us select the nextval first
-                $attributes[$pk] = $conn->get_next_sequence_value($table->sequence);
-                $table->insert($attributes);
-                $this->attributes[$pk] = $attributes[$pk];
-            } else {
-                // unset pk that was set to null
-                if (array_key_exists($pk, $attributes)) {
-                    unset($attributes[$pk]);
-                }
-
-                $table->insert($attributes, $pk, $table->sequence);
-                $use_sequence = true;
+            // unset pk that was set to null
+            if (array_key_exists($pk, $attributes)) {
+                unset($attributes[$pk]);
             }
+
+            $table->insert($attributes, $pk, $table->sequence);
+            $use_sequence = true;
         } else {
             $table->insert($attributes);
         }
@@ -1249,11 +1242,6 @@ class Model
                     $exceptions[] = $e->getMessage();
                 }
             } else {
-                // ignore OciAdapter's limit() stuff
-                if ($name == 'ar_rnum__') {
-                    continue;
-                }
-
                 // set arbitrary data
                 $this->assign_attribute($name, $value);
             }
