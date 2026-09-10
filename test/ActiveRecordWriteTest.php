@@ -13,8 +13,8 @@ use TestModels\Author;
 
 class DirtyAuthor extends Model
 {
-    static $table = 'authors';
-    static $before_save = 'before_save';
+    public static $table = 'authors';
+    public static $before_save = 'before_save';
 
     public function before_save()
     {
@@ -24,13 +24,13 @@ class DirtyAuthor extends Model
 
 class AuthorWithoutSequence extends Model
 {
-    static $table = 'authors';
-    static $sequence = 'invalid_seq';
+    public static $table = 'authors';
+    public static $sequence = 'invalid_seq';
 }
 
 class AuthorExplicitSequence extends Model
 {
-    static $sequence = 'blah_seq';
+    public static $sequence = 'blah_seq';
 }
 
 class ActiveRecordWriteTest extends DatabaseTest
@@ -50,14 +50,14 @@ class ActiveRecordWriteTest extends DatabaseTest
 
     public function test_save()
     {
-        $venue = new Venue(array('name' => 'Tito'));
+        $venue = new Venue(['name' => 'Tito']);
         $venue->save();
         $this->expectNotToPerformAssertions();
     }
 
     public function test_insert()
     {
-        $author = new Author(array('name' => 'Blah Blah'));
+        $author = new Author(['name' => 'Blah Blah']);
         $author->save();
         $this->assert_not_null(Author::find($author->id));
     }
@@ -70,19 +70,19 @@ class ActiveRecordWriteTest extends DatabaseTest
             throw new DatabaseException('');
         }
 
-        AuthorWithoutSequence::create(array('name' => 'Bob!'));
+        AuthorWithoutSequence::create(['name' => 'Bob!']);
     }
 
     public function test_insert_should_quote_keys()
     {
-        $author = new Author(array('name' => 'Blah Blah'));
+        $author = new Author(['name' => 'Blah Blah']);
         $author->save();
         $this->assert_true(strpos($author->connection()->last_query, $author->connection()->quote_name('updated_at')) !== false);
     }
 
     public function test_save_auto_increment_id()
     {
-        $venue = new Venue(array('name' => 'Bob'));
+        $venue = new Venue(['name' => 'Bob']);
         $venue->save();
         $this->assert_true($venue->id > 0);
     }
@@ -148,7 +148,7 @@ class ActiveRecordWriteTest extends DatabaseTest
     {
         $book = Book::find(1);
         $new_name = 'How to lose friends and alienate people'; // jax i'm worried about you
-        $attrs = array('name' => $new_name);
+        $attrs = ['name' => $new_name];
         $book->update_attributes($attrs);
 
         $this->assert_same($new_name, $book->name);
@@ -160,7 +160,7 @@ class ActiveRecordWriteTest extends DatabaseTest
         $this->expectException(UndefinedPropertyException::class);
 
         $book = Book::find(1);
-        $book->update_attributes(array('name' => 'new name', 'invalid_attribute' => true , 'another_invalid_attribute' => 'blah'));
+        $book->update_attributes(['name' => 'new name', 'invalid_attribute' => true , 'another_invalid_attribute' => 'blah']);
     }
 
     public function test_update_attribute()
@@ -191,11 +191,6 @@ class ActiveRecordWriteTest extends DatabaseTest
 
     public function test_save_blank_value()
     {
-        // oracle doesn't do blanks. probably an option to enable?
-        if ($this->conn instanceof ActiveRecord\OciAdapter) {
-            return;
-        }
-
         $book = Book::find(1);
         $book->name = '';
         $book->save();
@@ -205,7 +200,7 @@ class ActiveRecordWriteTest extends DatabaseTest
     public function test_dirty_attributes()
     {
         $book = $this->make_new_book_and(false);
-        $this->assert_equals(array('name','special'), array_keys($book->dirty_attributes()));
+        $this->assert_equals(['name','special'], array_keys($book->dirty_attributes()));
     }
 
     public function test_dirty_attributes_cleared_after_saving()
@@ -250,8 +245,8 @@ class ActiveRecordWriteTest extends DatabaseTest
     public function test_dirty_attributes_with_mass_assignment()
     {
         $book = Book::first();
-        $book->set_attributes(array('name' => 'rivers cuomo'));
-        $this->assert_equals(array('name'), array_keys($book->dirty_attributes()));
+        $book->set_attributes(['name' => 'rivers cuomo']);
+        $this->assert_equals(['name'], array_keys($book->dirty_attributes()));
     }
 
     public function test_timestamps_set_before_save()
@@ -282,13 +277,13 @@ class ActiveRecordWriteTest extends DatabaseTest
 
     public function test_create()
     {
-        $author = Author::create(array('name' => 'Blah Blah'));
+        $author = Author::create(['name' => 'Blah Blah']);
         $this->assert_not_null(Author::find($author->id));
     }
 
     public function test_create_should_set_created_at()
     {
-        $author = Author::create(array('name' => 'Blah Blah'));
+        $author = Author::create(['name' => 'Blah Blah']);
         $this->assert_not_null($author->created_at);
     }
 
@@ -296,7 +291,7 @@ class ActiveRecordWriteTest extends DatabaseTest
     {
         $this->expectException(ActiveRecordException::class);
 
-        Author::table()->pk = array();
+        Author::table()->pk = [];
         $author = Author::first();
         $author->name = 'blahhhhhhhhhh';
         $author->save();
@@ -306,14 +301,14 @@ class ActiveRecordWriteTest extends DatabaseTest
     {
         $this->expectException(ActiveRecordException::class);
 
-        Author::table()->pk = array();
+        Author::table()->pk = [];
         $author = author::first();
         $author->delete();
     }
 
     public function test_inserting_with_explicit_pk()
     {
-        $author = Author::create(array('author_id' => 9999, 'name' => 'blah'));
+        $author = Author::create(['author_id' => 9999, 'name' => 'blah']);
         $this->assert_equals(9999, $author->author_id);
     }
 
@@ -321,7 +316,7 @@ class ActiveRecordWriteTest extends DatabaseTest
     {
         $this->expectException(ReadOnlyException::class);
 
-        $author = Author::first(array('readonly' => true));
+        $author = Author::first(['readonly' => true]);
         $author->save();
     }
 
@@ -344,7 +339,7 @@ class ActiveRecordWriteTest extends DatabaseTest
 
     public function test_set_date_flags_dirty()
     {
-        $author = Author::create(array('some_date' => new DateTime()));
+        $author = Author::create(['some_date' => new DateTime()]);
         $author = Author::find($author->id);
         $author->some_date->setDate(2010, 1, 1);
         $this->assert_has_keys('some_date', $author->dirty_attributes());
@@ -352,7 +347,7 @@ class ActiveRecordWriteTest extends DatabaseTest
 
     public function test_set_date_flags_dirty_with_php_datetime()
     {
-        $author = Author::create(array('some_date' => new \DateTime()));
+        $author = Author::create(['some_date' => new \DateTime()]);
         $author = Author::find($author->id);
         $author->some_date->setDate(2010, 1, 1);
         $this->assert_has_keys('some_date', $author->dirty_attributes());
@@ -360,19 +355,19 @@ class ActiveRecordWriteTest extends DatabaseTest
 
     public function test_delete_all_with_conditions_as_string()
     {
-        $num_affected = Author::delete_all(array('conditions' => 'parent_author_id = 2'));
+        $num_affected = Author::delete_all(['conditions' => 'parent_author_id = 2']);
         $this->assert_equals(2, $num_affected);
     }
 
     public function test_delete_all_with_conditions_as_hash()
     {
-        $num_affected = Author::delete_all(array('conditions' => array('parent_author_id' => 2)));
+        $num_affected = Author::delete_all(['conditions' => ['parent_author_id' => 2]]);
         $this->assert_equals(2, $num_affected);
     }
 
     public function test_delete_all_with_conditions_as_array()
     {
-        $num_affected = Author::delete_all(array('conditions' => array('parent_author_id = ?', 2)));
+        $num_affected = Author::delete_all(['conditions' => ['parent_author_id = ?', 2]]);
         $this->assert_equals(2, $num_affected);
     }
 
@@ -382,48 +377,57 @@ class ActiveRecordWriteTest extends DatabaseTest
             $this->mark_test_skipped('Only MySQL & Sqlite accept limit/order with UPDATE clause');
         }
 
-        $num_affected = Author::delete_all(array('conditions' => array('parent_author_id = ?', 2), 'limit' => 1, 'order' => 'name asc'));
+        $num_affected = Author::delete_all(['conditions' => ['parent_author_id = ?', 2], 'limit' => 1, 'order' => 'name asc']);
         $this->assert_equals(1, $num_affected);
         $this->assert_true(strpos(Author::table()->last_sql, 'ORDER BY name asc LIMIT 1') !== false);
     }
 
     public function test_update_all_with_set_as_string()
     {
-        $num_affected = Author::update_all(array('set' => 'parent_author_id = 2'));
-        $this->assert_equals(2, $num_affected);
+        $num_affected = Author::update_all(['set' => 'parent_author_id = 2']);
+        $this->assert_equals($this->expected_update_all_count(), $num_affected);
         $this->assert_equals(4, Author::count_by_parent_author_id(2));
     }
 
     public function test_update_all_with_set_as_hash()
     {
-        $num_affected = Author::update_all(array('set' => array('parent_author_id' => 2)));
-        $this->assert_equals(2, $num_affected);
+        $num_affected = Author::update_all(['set' => ['parent_author_id' => 2]]);
+        $this->assert_equals($this->expected_update_all_count(), $num_affected);
+    }
+
+    /**
+     * Four authors match the update above, but two already have parent_author_id = 2.
+     * MySQL reports rows changed (2) by default; PostgreSQL and SQLite report rows matched (4).
+     */
+    private function expected_update_all_count()
+    {
+        return $this->conn->protocol == 'mysql' ? 2 : 4;
     }
 
     /**
      * TODO: not implemented
      * public function test_update_all_with_set_as_array()
      * {
-     *     $num_affected = Author::update_all(array('set' => array('parent_author_id = ?', 2)));
+     *     $num_affected = Author::update_all(['set' => ['parent_author_id = ?', 2]]);
      *    $this->assert_equals(2, $num_affected);
      * }
      */
 
     public function test_update_all_with_conditions_as_string()
     {
-        $num_affected = Author::update_all(array('set' => 'parent_author_id = 2', 'conditions' => 'name = "Tito"'));
+        $num_affected = Author::update_all(['set' => 'parent_author_id = 2', 'conditions' => "name = 'Tito'"]);
         $this->assert_equals(1, $num_affected);
     }
 
     public function test_update_all_with_conditions_as_hash()
     {
-        $num_affected = Author::update_all(array('set' => 'parent_author_id = 2', 'conditions' => array('name' => "Tito")));
+        $num_affected = Author::update_all(['set' => 'parent_author_id = 2', 'conditions' => ['name' => "Tito"]]);
         $this->assert_equals(1, $num_affected);
     }
 
     public function test_update_all_with_conditions_as_array()
     {
-        $num_affected = Author::update_all(array('set' => 'parent_author_id = 2', 'conditions' => array('name = ?', "Tito")));
+        $num_affected = Author::update_all(['set' => 'parent_author_id = 2', 'conditions' => ['name = ?', "Tito"]]);
         $this->assert_equals(1, $num_affected);
     }
 
@@ -433,14 +437,14 @@ class ActiveRecordWriteTest extends DatabaseTest
             $this->mark_test_skipped('Only MySQL & Sqlite accept limit/order with UPDATE clause');
         }
 
-        $num_affected = Author::update_all(array('set' => 'parent_author_id = 2', 'limit' => 1, 'order' => 'name asc'));
+        $num_affected = Author::update_all(['set' => 'parent_author_id = 2', 'limit' => 1, 'order' => 'name asc']);
         $this->assert_equals(1, $num_affected);
         $this->assert_true(strpos(Author::table()->last_sql, 'ORDER BY name asc LIMIT 1') !== false);
     }
 
     public function test_update_native_datetime()
     {
-        $author = Author::create(array('name' => 'Blah Blah'));
+        $author = Author::create(['name' => 'Blah Blah']);
         $native_datetime = new \DateTime('1983-12-05');
         $author->some_date = $native_datetime;
         $this->assert_false($native_datetime === $author->some_date);
@@ -448,7 +452,7 @@ class ActiveRecordWriteTest extends DatabaseTest
 
     public function test_update_our_datetime()
     {
-        $author = Author::create(array('name' => 'Blah Blah'));
+        $author = Author::create(['name' => 'Blah Blah']);
         $our_datetime = new DateTime('1983-12-05');
         $author->some_date = $our_datetime;
         $this->assert_true($our_datetime === $author->some_date);

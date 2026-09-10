@@ -16,7 +16,7 @@ class Errors implements IteratorAggregate
     private $model;
     private $errors;
 
-    public static $DEFAULT_ERROR_MESSAGES = array(
+    public static $DEFAULT_ERROR_MESSAGES = [
         'inclusion'    => "is not included in the list",
         'exclusion'    => "is reserved",
         'invalid'      => "is invalid",
@@ -37,7 +37,7 @@ class Errors implements IteratorAggregate
         'unique'       => "must be unique",
         'less_than_or_equal_to' => "must be less than or equal to %d",
         'greater_than_or_equal_to' => "must be greater than or equal to %d"
-    );
+    ];
 
     /**
      * Constructs an {@link Errors} object.
@@ -72,7 +72,7 @@ class Errors implements IteratorAggregate
         }
 
         if (!isset($this->errors[$attribute])) {
-            $this->errors[$attribute] = array($msg);
+            $this->errors[$attribute] = [$msg];
         } else {
             $this->errors[$attribute][] = $msg;
         }
@@ -157,10 +157,10 @@ class Errors implements IteratorAggregate
      * <code>
      * $model->errors->get_raw_errors();
      *
-     * # array(
-     * #  "name" => array("can't be blank"),
-     * #  "state" => array("is the wrong length (should be 2 chars)",
-     * # )
+     * # [
+     * #  "name" => ["can't be blank"],
+     * #  "state" => ["is the wrong length (should be 2 chars)"],
+     * # ]
      * </code>
      */
     public function get_raw_errors()
@@ -174,17 +174,17 @@ class Errors implements IteratorAggregate
      * <code>
      * $model->errors->full_messages();
      *
-     * # array(
+     * # [
      * #  "Name can't be blank",
      * #  "State is the wrong length (should be 2 chars)"
-     * # )
+     * # ]
      * </code>
      *
      * @return array
      */
     public function full_messages()
     {
-        $full_messages = array();
+        $full_messages = [];
 
         $this->to_array(function ($attribute, $message) use (&$full_messages) {
             $full_messages[] = $message;
@@ -199,10 +199,10 @@ class Errors implements IteratorAggregate
      * <code>
      * $model->errors->errors();
      *
-     * # array(
-     * #  "name" => array("Name can't be blank"),
-     * #  "state" => array("State is the wrong length (should be 2 chars)")
-     * # )
+     * # [
+     * #  "name" => ["Name can't be blank"],
+     * #  "state" => ["State is the wrong length (should be 2 chars)"]
+     * # ]
      * </code>
      *
      * @param callable $closure Closure to fetch the errors in some other format (optional)
@@ -212,7 +212,7 @@ class Errors implements IteratorAggregate
      */
     public function to_array($closure = null)
     {
-        $errors = array();
+        $errors = [];
 
         if ($this->errors) {
             foreach ($this->errors as $attribute => $messages) {
@@ -262,7 +262,7 @@ class Errors implements IteratorAggregate
      */
     public function clear()
     {
-        $this->errors = array();
+        $this->errors = [];
     }
 
     /**

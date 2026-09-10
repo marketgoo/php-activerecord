@@ -99,7 +99,7 @@ abstract class Inflector
      */
     public function underscorify($s)
     {
-        return preg_replace(array('/[_\- ]+/','/([a-z])([A-Z])/'), array('_','\\1_\\2'), trim($s));
+        return preg_replace(['/[_\- ]+/','/([a-z])([A-Z])/'], ['_','\\1_\\2'], trim($s));
     }
 
     public function keyify($class_name)
@@ -121,6 +121,6 @@ class StandardInflector extends Inflector
     }
     public function variablize($s)
     {
-        return str_replace(array('-',' '), array('_','_'), strtolower(trim($s)));
+        return str_replace(['-',' '], ['_','_'], strtolower(trim($s)));
     }
 }

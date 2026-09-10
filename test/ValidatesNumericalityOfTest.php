@@ -14,13 +14,13 @@ class BookNumericality extends Model
 
 class ValidatesNumericalityOfTest extends DatabaseTest
 {
-    static $NULL = [null];
-    static $BLANK = ["", " ", " \t \r \n"];
-    static $FLOAT_STRINGS = ['0.0','+0.0','-0.0','10.0','10.5','-10.5','-0.0001','-090.1'];
-    static $INTEGER_STRINGS = ['0', '+0', '-0', '10', '+10', '-10', '0090', '-090'];
-    static $FLOATS = [0.0, 10.0, 10.5, -10.5, -0.0001];
-    static $INTEGERS = [0, 10, -10];
-    static $JUNK = ["not a number", "42 not a number", "00-1", "--3", "+-3", "+3-1", "-+019.0", "12.12.13.12", "123\nnot a number"];
+    public static $NULL = [null];
+    public static $BLANK = ["", " ", " \t \r \n"];
+    public static $FLOAT_STRINGS = ['0.0','+0.0','-0.0','10.0','10.5','-10.5','-0.0001','-090.1'];
+    public static $INTEGER_STRINGS = ['0', '+0', '-0', '10', '+10', '-10', '0090', '-090'];
+    public static $FLOATS = [0.0, 10.0, 10.5, -10.5, -0.0001];
+    public static $INTEGERS = [0, 10, -10];
+    public static $JUNK = ["not a number", "42 not a number", "00-1", "--3", "+-3", "+3-1", "-+019.0", "12.12.13.12", "123\nnot a number"];
 
     public function setUp(): void
     {
@@ -65,7 +65,7 @@ class ValidatesNumericalityOfTest extends DatabaseTest
 
     public function test_numericality()
     {
-        //$this->assert_invalid(array("0xdeadbeef"));
+        //$this->assert_invalid(["0xdeadbeef"]);
 
         $this->assert_valid(array_merge(self::$FLOATS, self::$INTEGERS));
         $this->assert_invalid(array_merge(self::$NULL, self::$BLANK, self::$JUNK));

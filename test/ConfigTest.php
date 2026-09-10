@@ -36,7 +36,7 @@ class ConfigTest extends SnakeCase_PHPUnit_Framework_TestCase
     public function setUp(): void
     {
         $this->config = new Config();
-        $this->connections = array('development' => 'mysql://blah/development', 'test' => 'mysql://blah/test');
+        $this->connections = ['development' => 'mysql://blah/development', 'test' => 'mysql://blah/test'];
         $this->config->set_connections($this->connections);
     }
 
@@ -82,7 +82,7 @@ class ConfigTest extends SnakeCase_PHPUnit_Framework_TestCase
 
     public function test_default_connection_is_set_when_only_one_connection_is_present()
     {
-        $this->config->set_connections(array('development' => $this->connections['development']));
+        $this->config->set_connections(['development' => $this->connections['development']]);
         $this->assert_equals('development', $this->config->get_default_connection());
     }
 

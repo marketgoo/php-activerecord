@@ -1,7 +1,7 @@
 <?php
 
 use TestModels\Author;
-use ActiveRecord\DatabaseException;
+use ActiveRecord\Exceptions\DatabaseException;
 use ActiveRecord\DateTime as DateTime;
 use TestHelpers\SnakeCase_PHPUnit_Framework_TestCase;
 
@@ -41,7 +41,7 @@ class DateTimeTest extends SnakeCase_PHPUnit_Framework_TestCase
         $args = func_get_args();
         array_shift($args);
 
-        call_user_func_array(array($datetime,$method), $args);
+        call_user_func_array([$datetime,$method], $args);
         $this->assert_has_keys('some_date', $model->dirty_attributes());
     }
 

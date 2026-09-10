@@ -6,10 +6,10 @@ use ActiveRecord\Model;
 
 class PropertyAmenity extends Model
 {
-    static $table_name = 'property_amenities';
-    static $primary_key = 'id';
+    public static $table_name = 'property_amenities';
+    public static $primary_key = 'id';
 
-    static $belongs_to = [
+    public static $belongs_to = [
         'amenity',
         'property'
     ];

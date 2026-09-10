@@ -17,7 +17,7 @@ use ActiveRecord\Connection;
  */
 class MysqlAdapter extends Connection
 {
-    static $DEFAULT_PORT = 3306;
+    public static $DEFAULT_PORT = 3306;
 
     public function limit($sql, $offset, $limit)
     {
@@ -72,7 +72,7 @@ class MysqlAdapter extends Connection
 
     public function set_encoding($charset)
     {
-        $params = array($charset);
+        $params = [$charset];
         $this->query('SET NAMES ?', $params);
     }
 

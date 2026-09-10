@@ -19,7 +19,7 @@ class SnakeCase_PHPUnit_Framework_TestCase extends TestCase
 
         $class_name = get_called_class();
         $trace = debug_backtrace();
-        die("PHP Fatal Error:  Call to undefined method $class_name::$meth() in {$trace[1]['file']} on line {$trace[1]['line']}". PHP_EOL);
+        die("PHP Fatal Error:  Call to undefined method $class_name::$meth() in {$trace[1]['file']} on line {$trace[1]['line']}" . PHP_EOL);
     }
 
     private function setup_assert_keys($args)
@@ -27,12 +27,12 @@ class SnakeCase_PHPUnit_Framework_TestCase extends TestCase
         $last = count($args) - 1;
         $keys = array_slice($args, 0, $last);
         $array = $args[$last];
-        return array($keys,$array);
+        return [$keys,$array];
     }
 
     public function assert_has_keys(/* $keys..., $array */)
     {
-        list($keys,$array) = $this->setup_assert_keys(func_get_args());
+        [$keys,$array] = $this->setup_assert_keys(func_get_args());
 
         $this->assert_not_null($array, 'Array was null');
 
@@ -43,7 +43,7 @@ class SnakeCase_PHPUnit_Framework_TestCase extends TestCase
 
     public function assert_doesnt_has_keys(/* $keys..., $array */)
     {
-        list($keys,$array) = $this->setup_assert_keys(func_get_args());
+        [$keys,$array] = $this->setup_assert_keys(func_get_args());
 
         foreach ($keys as $name) {
             $this->assert_array_not_has_key($name, $array);

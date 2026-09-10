@@ -38,14 +38,14 @@ abstract class AbstractRelationship implements RelationshipInterface
      *
      * @var string
      */
-    public $foreign_key = array();
+    public $foreign_key = [];
 
     /**
      * Options of the relationship.
      *
      * @var array
      */
-    protected $options = array();
+    protected $options = [];
 
     /**
      * Is the relationship single or multi.
@@ -59,7 +59,7 @@ abstract class AbstractRelationship implements RelationshipInterface
      *
      * @var array
      */
-    protected static $valid_association_options = array('class_name', 'class', 'foreign_key', 'conditions', 'select', 'readonly', 'namespace');
+    protected static $valid_association_options = ['class_name', 'class', 'foreign_key', 'conditions', 'select', 'readonly', 'namespace'];
 
     /**
      * Constructs a relationship.
@@ -67,7 +67,7 @@ abstract class AbstractRelationship implements RelationshipInterface
      * @param array $options Options for the relationship (see {@link valid_association_options})
      * @return mixed
      */
-    public function __construct($options = array())
+    public function __construct($options = [])
     {
         $this->attribute_name = $options[0];
         $this->options = $this->merge_association_options($options);
@@ -79,7 +79,7 @@ abstract class AbstractRelationship implements RelationshipInterface
         }
 
         if (isset($this->options['conditions']) && !is_array($this->options['conditions'])) {
-            $this->options['conditions'] = array($this->options['conditions']);
+            $this->options['conditions'] = [$this->options['conditions']];
         }
 
         if (isset($this->options['class'])) {
@@ -91,7 +91,7 @@ abstract class AbstractRelationship implements RelationshipInterface
         $this->attribute_name = strtolower(Inflector::instance()->variablize($this->attribute_name));
 
         if (!$this->foreign_key && isset($this->options['foreign_key'])) {
-            $this->foreign_key = is_array($this->options['foreign_key']) ? $this->options['foreign_key'] : array($this->options['foreign_key']);
+            $this->foreign_key = is_array($this->options['foreign_key']) ? $this->options['foreign_key'] : [$this->options['foreign_key']];
         }
     }
 
@@ -125,9 +125,12 @@ abstract class AbstractRelationship implements RelationshipInterface
      * @param $model_values_keys -> key(s)/value(s) to be used in query from model which is including
      * @return void
      */
-    protected function query_and_attach_related_models_eagerly(Table $table, $models, $attributes, $includes = array(), $query_keys = array(), $model_values_keys = array())
+    protected function query_and_attach_related_models_eagerly(Table $table, $models, $attributes, $includes = [], $query_keys = [], $model_values_keys = [])
     {
-        $values = array();
+        // Query the related table by its real column names; the relationship keys are inflected.
+        $query_keys = array_map([$this->get_table(), 'column_name_for'], (array)$query_keys);
+
+        $values = [];
         $options = $this->options;
         $inflector = Inflector::instance();
         $query_key = $query_keys[0];
@@ -137,7 +140,7 @@ abstract class AbstractRelationship implements RelationshipInterface
             $values[] = $value[$inflector->variablize($model_values_key)];
         }
 
-        $values = array($values);
+        $values = [$values];
         $conditions = SQLBuilder::create_conditions_from_underscored_string($table->conn, $query_key, $values);
 
         if (isset($options['conditions']) && strlen($options['conditions'][0]) > 1) {
@@ -183,8 +186,8 @@ abstract class AbstractRelationship implements RelationshipInterface
         $class = $this->class_name;
 
         $related_models = $class::find('all', $options);
-        $used_models_map = array();
-        $related_models_map = array();
+        $used_models_map = [];
+        $related_models_map = [];
         $model_values_key = $inflector->variablize($model_values_key);
         $query_key = $inflector->variablize($query_key);
 
@@ -220,7 +223,7 @@ abstract class AbstractRelationship implements RelationshipInterface
      * @param array $attributes Hash containing attributes to initialize the model with
      * @return Model
      */
-    public function build_association(Model $model, $attributes = array(), $guard_attributes = true)
+    public function build_association(Model $model, $attributes = [], $guard_attributes = true)
     {
         $class_name = $this->class_name;
         return new $class_name($attributes, $guard_attributes);
@@ -233,7 +236,7 @@ abstract class AbstractRelationship implements RelationshipInterface
      * @param array $attributes Hash containing attributes to initialize the model with
      * @return Model
      */
-    public function create_association(Model $model, $attributes = array(), $guard_attributes = true)
+    public function create_association(Model $model, $attributes = [], $guard_attributes = true)
     {
         $class_name = $this->class_name;
         $new_record = $class_name::create($attributes, true, $guard_attributes);
@@ -304,7 +307,7 @@ abstract class AbstractRelationship implements RelationshipInterface
         $this->class_name = $class_name;
     }
 
-    protected function create_conditions_from_keys(Model $model, $condition_keys = array(), $value_keys = array())
+    protected function create_conditions_from_keys(Model $model, $condition_keys = [], $value_keys = [])
     {
         $condition_string = implode('_and_', $condition_keys);
         $condition_values = array_values($model->get_values_for($value_keys));
@@ -320,7 +323,7 @@ abstract class AbstractRelationship implements RelationshipInterface
         if (isset($this->options['conditions'])) {
             $options_conditions = $this->options['conditions'];
         } else {
-            $options_conditions = array();
+            $options_conditions = [];
         }
 
         return Utils::add_condition($options_conditions, $conditions);
@@ -379,5 +382,3 @@ abstract class AbstractRelationship implements RelationshipInterface
      */
     abstract public function load(Model $model);
 }
-
-

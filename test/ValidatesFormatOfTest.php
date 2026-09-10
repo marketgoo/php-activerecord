@@ -6,8 +6,8 @@ use ActiveRecord\Exceptions\ValidationsArgumentError;
 
 class BookFormat extends Model
 {
-    static $table = 'books';
-    static $validates_format_of = [
+    public static $table = 'books';
+    public static $validates_format_of = [
         ['name']
     ];
 }

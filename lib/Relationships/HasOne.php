@@ -17,7 +17,7 @@ namespace ActiveRecord\Relationships;
  * # Table name: people
  * # Foreign key: state_id
  * class Person extends ActiveRecord\Model {
- *   static $has_one = array(array('state'));
+ *   static $has_one = [['state']];
  * }
  * </code>
  *

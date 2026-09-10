@@ -8,7 +8,7 @@ use ActiveRecord\Config;
 use ActiveRecord\ConnectionManager;
 use ActiveRecord\Exceptions\DatabaseException;
 use ActiveRecord\Exceptions\UndefinedPropertyException;
-    
+
 class DatabaseTest extends SnakeCase_PHPUnit_Framework_TestCase
 {
     protected $conn;
@@ -41,6 +41,10 @@ class DatabaseTest extends SnakeCase_PHPUnit_Framework_TestCase
         try {
             $this->conn = ConnectionManager::get_connection($this->connection_name);
         } catch (DatabaseException $e) {
+            // PHPUnit does not run tearDown() when setUp() skips the test, so undo
+            // the default connection change here. Otherwise an unreachable adapter
+            // stays as the default and every later test class is skipped as well.
+            $config->set_default_connection($this->original_default_connection);
             $this->mark_test_skipped($this->connection_name . ' failed to connect. ' . $e->getMessage());
         }
 
@@ -56,11 +60,6 @@ class DatabaseTest extends SnakeCase_PHPUnit_Framework_TestCase
 
     public function tearDown(): void
     {
-        if ($this->status()->asString() == "skipped") {
-            // Nothing left to do on skipped test cases
-            return;
-        }
-
         Config::instance()->set_date_class($this->original_date_class);
 
         if ($this->original_default_connection) {
@@ -89,15 +88,15 @@ class DatabaseTest extends SnakeCase_PHPUnit_Framework_TestCase
      */
     public function assert_sql_has($needle, $haystack)
     {
-        $needle = str_replace(array('"','`'), '', $needle);
-        $haystack = str_replace(array('"','`'), '', $haystack);
+        $needle = str_replace(['"','`'], '', $needle);
+        $haystack = str_replace(['"','`'], '', $haystack);
         return $this->assertStringContainsString($needle, $haystack);
     }
 
     public function assert_sql_doesnt_has($needle, $haystack)
     {
-        $needle = str_replace(array('"','`'), '', $needle);
-        $haystack = str_replace(array('"','`'), '', $haystack);
+        $needle = str_replace(['"','`'], '', $needle);
+        $haystack = str_replace(['"','`'], '', $haystack);
         return $this->assertStringNotContainsString($needle, $haystack);
     }
 

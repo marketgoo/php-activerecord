@@ -584,7 +584,7 @@ class RelationshipTest extends DatabaseTest
 
     // public function test_eager_loading_has_many_x_with_caching()
     // {
-    //     Publisher::find(array(1, 2, 3), array('include' => 'authors'));
+    //     Publisher::find([1, 2, 3], ['include' => 'authors']);
     //     $this->assert_sql_has("WHERE publisher_id IN(?)", ActiveRecord\Table::load('Author')->last_sql);
     // }
 
@@ -596,7 +596,7 @@ class RelationshipTest extends DatabaseTest
             $this->assert_true(empty($v->events));
         }
 
-        $this->assert_sql_has("WHERE id IN(?,?)", Table::load('Venue')->last_sql);
+        $this->assert_sql_has("WHERE " . Venue::table()->column_name_for('id') . " IN(?,?)", Table::load('Venue')->last_sql);
         $this->assert_sql_has("WHERE venue_id IN(?,?)", Table::load('Event')->last_sql);
     }
 
@@ -621,7 +621,7 @@ class RelationshipTest extends DatabaseTest
         }
 
         $this->assert_sql_has("WHERE author_id IN(?,?)", Table::load('Author')->last_sql);
-        $this->assert_sql_has("WHERE author_id IN(?,?)", Table::load('Book')->last_sql);
+        $this->assert_sql_has("WHERE " . Book::table()->column_name_for('author_id') . " IN(?,?)", Table::load('Book')->last_sql);
         $this->assert_sql_has("WHERE author_id IN(?,?)", Table::load('AwesomePerson')->last_sql);
     }
 
@@ -640,7 +640,7 @@ class RelationshipTest extends DatabaseTest
             }
         }
 
-        $this->assert_sql_has("WHERE id IN(?,?)", Table::load('Venue')->last_sql);
+        $this->assert_sql_has("WHERE " . Venue::table()->column_name_for('id') . " IN(?,?)", Table::load('Venue')->last_sql);
         $this->assert_sql_has("WHERE venue_id IN(?,?)", Table::load('Event')->last_sql);
         $this->assert_sql_has("WHERE id IN(?,?,?)", Table::load('Host')->last_sql);
     }
@@ -653,7 +653,7 @@ class RelationshipTest extends DatabaseTest
             $this->assert_equals($event->venue_id, $event->venue->id);
         }
 
-        $this->assert_sql_has("WHERE id IN(?,?,?,?,?)", Table::load('Venue')->last_sql);
+        $this->assert_sql_has("WHERE " . Venue::table()->column_name_for('id') . " IN(?,?,?,?,?)", Table::load('Venue')->last_sql);
     }
 
     public function test_eager_loading_belongs_to_array_of_includes()
@@ -667,7 +667,7 @@ class RelationshipTest extends DatabaseTest
 
         $this->assert_sql_has("WHERE id IN(?,?,?,?,?)", Table::load('Event')->last_sql);
         $this->assert_sql_has("WHERE id IN(?,?,?,?,?)", Table::load('Host')->last_sql);
-        $this->assert_sql_has("WHERE id IN(?,?,?,?,?)", Table::load('Venue')->last_sql);
+        $this->assert_sql_has("WHERE " . Venue::table()->column_name_for('id') . " IN(?,?,?,?,?)", Table::load('Venue')->last_sql);
     }
 
     public function test_eager_loading_belongs_to_nested()
@@ -700,7 +700,7 @@ class RelationshipTest extends DatabaseTest
         }
 
         $this->assert_sql_has("WHERE id IN(?,?)", Table::load('Event')->last_sql);
-        $this->assert_sql_has("WHERE id IN(?,?)", Table::load('Venue')->last_sql);
+        $this->assert_sql_has("WHERE " . Venue::table()->column_name_for('id') . " IN(?,?)", Table::load('Venue')->last_sql);
     }
 
     public function test_eager_loading_clones_related_objects()

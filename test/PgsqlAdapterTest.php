@@ -21,7 +21,7 @@ class PgsqlAdapterTest extends AdapterTest
 
     public function test_insert_id_with_params()
     {
-        $x = array('name');
+        $x = ['name'];
         $this->conn->query("INSERT INTO authors(author_id,name) VALUES(nextval('authors_author_id_seq'),?)", $x);
         $this->assert_true($this->conn->insert_id('authors_author_id_seq') > 0);
     }

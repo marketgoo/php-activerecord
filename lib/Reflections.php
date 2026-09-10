@@ -7,6 +7,7 @@
 namespace ActiveRecord;
 
 use ReflectionClass;
+use ActiveRecord\Exceptions\ActiveRecordException;
 
 /**
  * Simple class that caches reflections of classes.
@@ -20,7 +21,7 @@ class Reflections extends Singleton
      *
      * @var array
      */
-    private $reflections = array();
+    private $reflections = [];
 
     /**
      * Instantiates a new ReflectionClass for the given class.
@@ -96,7 +97,7 @@ class Reflections extends Singleton
             if (class_exists($mixed)) {
                 return $mixed;
             } else {
-                return join('\\', array_filter([Config::instance()->get_model_namespace(), $mixed]));
+                return implode('\\', array_filter([Config::instance()->get_model_namespace(), $mixed]));
             }
         }
 

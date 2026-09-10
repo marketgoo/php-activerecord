@@ -26,7 +26,7 @@ class Column
      * @static
      * @var array
      */
-    static $TYPE_MAPPING = [
+    public static $TYPE_MAPPING = [
         'datetime'  => self::DATETIME,
         'timestamp' => self::DATETIME,
         'date'      => self::DATE,

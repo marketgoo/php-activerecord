@@ -29,32 +29,32 @@ namespace ActiveRecord;
  *
  * <code>
  * class Person extends ActiveRecord\Model {
- *   static $belongs_to = array(
- *     array('parent', 'foreign_key' => 'parent_id', 'class_name' => 'Person')
- *   );
+ *   static $belongs_to = [
+ *     ['parent', 'foreign_key' => 'parent_id', 'class_name' => 'Person']
+ *   ];
  *
- *   static $has_many = array(
- *     array('children', 'foreign_key' => 'parent_id', 'class_name' => 'Person'),
- *     array('orders')
- *   );
+ *   static $has_many = [
+ *     ['children', 'foreign_key' => 'parent_id', 'class_name' => 'Person'],
+ *     ['orders']
+ *   ];
  *
- *   static $validates_length_of = array(
- *     array('first_name', 'within' => array(1,50)),
- *     array('last_name', 'within' => array(1,50))
- *   );
+ *   static $validates_length_of = [
+ *     ['first_name', 'within' => [1,50]],
+ *     ['last_name', 'within' => [1,50]]
+ *   ];
  * }
  *
  * class Order extends ActiveRecord\Model {
- *   static $belongs_to = array(
- *     array('person')
- *   );
+ *   static $belongs_to = [
+ *     ['person']
+ *   ];
  *
- *   static $validates_numericality_of = array(
- *     array('cost', 'greater_than' => 0),
- *     array('total', 'greater_than' => 0)
- *   );
+ *   static $validates_numericality_of = [
+ *     ['cost', 'greater_than' => 0],
+ *     ['total', 'greater_than' => 0]
+ *   ];
  *
- *   static $before_save = array('calculate_total_with_tax');
+ *   static $before_save = ['calculate_total_with_tax'];
  *
  *   public function calculate_total_with_tax() {
  *     $this->total = $this->cost * 0.045;
@@ -174,9 +174,9 @@ class Model
      *
      * <code>
      * class Person extends ActiveRecord\Model {
-     *   static $alias_attribute = array(
+     *   static $alias_attribute = [
      *     'alias_first_name' => 'first_name',
-     *     'alias_last_name' => 'last_name');
+     *     'alias_last_name' => 'last_name'];
      * }
      *
      * $person = Person::first();
@@ -195,13 +195,13 @@ class Model
      *
      * <code>
      * class Person extends ActiveRecord\Model {
-     *   static $attr_accessible = array('first_name','last_name');
+     *   static $attr_accessible = ['first_name','last_name'];
      * }
      *
-     * $person = new Person(array(
+     * $person = new Person([
      *   'first_name' => 'Tito',
      *   'last_name' => 'the Grief',
-     *   'id' => 11111));
+     *   'id' => 11111]);
      *
      * echo $person->id; # => null
      * </code>
@@ -227,10 +227,10 @@ class Model
      *
      * <code>
      * class Person extends ActiveRecord\Model {
-     *   static $belongs_to = array(array('venue'),array('host'));
-     *   static $delegate = array(
-     *     array('name', 'state', 'to' => 'venue'),
-     *     array('name', 'to' => 'host', 'prefix' => 'woot'));
+     *   static $belongs_to = [['venue'],['host']];
+     *   static $delegate = [
+     *     ['name', 'state', 'to' => 'venue'],
+     *     ['name', 'to' => 'host', 'prefix' => 'woot']];
      * }
      * </code>
      *
@@ -254,7 +254,7 @@ class Model
      * $attributes will be mapped via set_attributes_via_mass_assignment.
      *
      * <code>
-     * new Person(array('first_name' => 'Tito', 'last_name' => 'the Grief'));
+     * new Person(['first_name' => 'Tito', 'last_name' => 'the Grief']);
      * </code>
      *
      * @param array $attributes Hash containing names and values to mass assign to the model
@@ -263,7 +263,7 @@ class Model
      * @param boolean $new_record Set to true if this should be considered a new record
      * @return Model
      */
-    public function __construct(array $attributes = array(), $guard_attributes = true, $instantiating_via_find = false, $new_record = true)
+    public function __construct(array $attributes = [], $guard_attributes = true, $instantiating_via_find = false, $new_record = true)
     {
         $this->__new_record = $new_record;
 
@@ -279,7 +279,7 @@ class Model
         // since all attribute assignment now goes thru assign_attributes() we want to reset
         // dirty if instantiating via find since nothing is really dirty when doing that
         if ($instantiating_via_find) {
-            $this->__dirty = array();
+            $this->__dirty = [];
         }
 
         $this->invoke_callback('after_construct', false);
@@ -553,7 +553,7 @@ class Model
     public function flag_dirty($name)
     {
         if (!$this->__dirty) {
-            $this->__dirty = array();
+            $this->__dirty = [];
         }
 
         $this->__dirty[$name] = true;
@@ -631,22 +631,20 @@ class Model
      * Will return an array looking like:
      *
      * <code>
-     * array(
-     *   'name' => array(
-     *     array('validator' => 'validates_presence_of'),
-     *     array('validator' => 'validates_inclusion_of', 'in' => array('Bob','Joe','John')),
-     *   'password' => array(
-     *     array('validator' => 'validates_length_of', 'minimum' => 6))
-     *   )
-     * );
+     * [
+     *   'name' => [
+     *     ['validator' => 'validates_presence_of'],
+     *     ['validator' => 'validates_inclusion_of', 'in' => ['Bob','Joe','John']],
+     *   'password' => [
+     *     ['validator' => 'validates_length_of', 'minimum' => 6]]
+     *   ]
+     * ];
      * </code>
      *
      * @return array An array containing validator data for this model.
      */
     public function get_validation_rules()
     {
-        require_once 'Validations.php';
-
         $validator = new Validations($this);
         return $validator->rules();
     }
@@ -659,7 +657,7 @@ class Model
      */
     public function get_values_for($attributes)
     {
-        $ret = array();
+        $ret = [];
 
         foreach ($attributes as $name) {
             if (array_key_exists($name, $this->attributes)) {
@@ -834,20 +832,13 @@ class Model
         $use_sequence = false;
 
         if ($table->sequence && !isset($attributes[$pk])) {
-            if (($conn = static::connection()) instanceof OciAdapter) {
-                // terrible oracle makes us select the nextval first
-                $attributes[$pk] = $conn->get_next_sequence_value($table->sequence);
-                $table->insert($attributes);
-                $this->attributes[$pk] = $attributes[$pk];
-            } else {
-                // unset pk that was set to null
-                if (array_key_exists($pk, $attributes)) {
-                    unset($attributes[$pk]);
-                }
-
-                $table->insert($attributes, $pk, $table->sequence);
-                $use_sequence = true;
+            // unset pk that was set to null
+            if (array_key_exists($pk, $attributes)) {
+                unset($attributes[$pk]);
             }
+
+            $table->insert($attributes, $pk, $table->sequence);
+            $use_sequence = true;
         } else {
             $table->insert($attributes);
         }
@@ -926,19 +917,19 @@ class Model
      * Delete all using a hash:
      *
      * <code>
-     * YourModel::delete_all(array('conditions' => array('name' => 'Tito')));
+     * YourModel::delete_all(['conditions' => ['name' => 'Tito']]);
      * </code>
      *
      * Delete all using an array:
      *
      * <code>
-     * YourModel::delete_all(array('conditions' => array('name = ?', 'Tito')));
+     * YourModel::delete_all(['conditions' => ['name = ?', 'Tito']]);
      * </code>
      *
      * Delete all using a string:
      *
      * <code>
-     * YourModel::delete_all(array('conditions' => 'name = "Tito"'));
+     * YourModel::delete_all(['conditions' => 'name = "Tito"']);
      * </code>
      *
      * An options array takes the following parameters:
@@ -952,7 +943,7 @@ class Model
      * @param array $options
      * @return integer Number of rows affected
      */
-    public static function delete_all($options = array())
+    public static function delete_all($options = [])
     {
         $table = static::table();
         $conn = static::connection();
@@ -961,7 +952,7 @@ class Model
         $conditions = is_array($options) ? $options['conditions'] : $options;
 
         if (is_array($conditions) && !Utils::is_hash($conditions)) {
-            call_user_func_array(array($sql, 'delete'), $conditions);
+            call_user_func_array([$sql, 'delete'], $conditions);
         } else {
             $sql->delete($conditions);
         }
@@ -987,13 +978,13 @@ class Model
      * Update all using a hash:
      *
      * <code>
-     * YourModel::update_all(array('set' => array('name' => "Bob")));
+     * YourModel::update_all(['set' => ['name' => "Bob"]]);
      * </code>
      *
      * Update all using a string:
      *
      * <code>
-     * YourModel::update_all(array('set' => 'name = "Bob"'));
+     * YourModel::update_all(['set' => 'name = "Bob"']);
      * </code>
      *
      * An options array takes the following parameters:
@@ -1008,7 +999,7 @@ class Model
      * @param array $options
      * @return integer Number of rows affected
      */
-    public static function update_all($options = array())
+    public static function update_all($options = [])
     {
         $table = static::table();
         $conn = static::connection();
@@ -1018,7 +1009,7 @@ class Model
 
         if (isset($options['conditions']) && ($conditions = $options['conditions'])) {
             if (is_array($conditions) && !Utils::is_hash($conditions)) {
-                call_user_func_array(array($sql, 'where'), $conditions);
+                call_user_func_array([$sql, 'where'], $conditions);
             } else {
                 $sql->where($conditions);
             }
@@ -1066,7 +1057,7 @@ class Model
     /**
      * Helper that creates an array of values for the primary key(s).
      *
-     * @return array An array in the form array(key_name => value, ...)
+     * @return array An array in the form [key_name => value, ...]
      */
     public function values_for_pk()
     {
@@ -1077,11 +1068,11 @@ class Model
      * Helper to return a hash of values for the specified attributes.
      *
      * @param array $attribute_names Array of attribute names
-     * @return array An array in the form array(name => value, ...)
+     * @return array An array in the form [name => value, ...]
      */
     public function values_for($attribute_names)
     {
-        $filter = array();
+        $filter = [];
 
         foreach ($attribute_names as $name) {
             $filter[$name] = $this->$name;
@@ -1097,12 +1088,10 @@ class Model
      */
     private function validate()
     {
-        require_once 'Validations.php';
-
         $validator = new Validations($this);
         $validation_on = 'validation_on_' . ($this->is_new_record() ? 'create' : 'update');
 
-        foreach (array('before_validation', "before_$validation_on") as $callback) {
+        foreach (['before_validation', "before_$validation_on"] as $callback) {
             if (!$this->invoke_callback($callback, false)) {
                 return false;
             }
@@ -1112,7 +1101,7 @@ class Model
         $this->errors = $validator->get_record();
         $validator->validate();
 
-        foreach (array('after_validation', "after_$validation_on") as $callback) {
+        foreach (['after_validation', "after_$validation_on"] as $callback) {
             $this->invoke_callback($callback, false);
         }
 
@@ -1174,7 +1163,7 @@ class Model
     /**
      * Mass update the model with an array of attribute data and saves to the database.
      *
-     * @param array $attributes An attribute data array in the form array(name => value, ...)
+     * @param array $attributes An attribute data array in the form [name => value, ...]
      * @return boolean True if successfully updated and saved otherwise false
      */
     public function update_attributes($attributes)
@@ -1203,7 +1192,7 @@ class Model
      * but DOES NOT save it to the database.
      *
      * @see update_attributes
-     * @param array $attributes An array containing data to update in the form array(name => value, ...)
+     * @param array $attributes An array containing data to update in the form [name => value, ...]
      */
     public function set_attributes(array $attributes)
     {
@@ -1214,14 +1203,14 @@ class Model
      * Passing $guard_attributes as true will throw an exception if an attribute does not exist.
      *
      * @throws \ActiveRecord\UndefinedPropertyException
-     * @param array $attributes An array in the form array(name => value, ...)
+     * @param array $attributes An array in the form [name => value, ...]
      * @param boolean $guard_attributes Flag of whether or not protected/non-accessible attributes should be guarded
      */
     private function set_attributes_via_mass_assignment(array &$attributes, $guard_attributes)
     {
         //access uninflected columns since that is what we would have in result set
         $table = static::table();
-        $exceptions = array();
+        $exceptions = [];
         $use_attr_accessible = !empty(static::$attr_accessible);
         $use_attr_protected = !empty(static::$attr_protected);
         $connection = static::connection();
@@ -1249,11 +1238,6 @@ class Model
                     $exceptions[] = $e->getMessage();
                 }
             } else {
-                // ignore OciAdapter's limit() stuff
-                if ($name == 'ar_rnum__') {
-                    continue;
-                }
-
                 // set arbitrary data
                 $this->assign_attribute($name, $value);
             }
@@ -1284,7 +1268,7 @@ class Model
             if ($rel->is_poly()) {
                 // if the related model is null and it is a poly then we should have an empty array
                 if (is_null($model)) {
-                    return $this->__relationships[$name] = array();
+                    return $this->__relationships[$name] = [];
                 } else {
                     return $this->__relationships[$name][] = $model;
                 }
@@ -1303,7 +1287,7 @@ class Model
      */
     public function reload()
     {
-        $this->__relationships = array();
+        $this->__relationships = [];
         $pk = array_values($this->get_values_for($this->get_primary_key()));
 
         $this->expire_cache();
@@ -1315,7 +1299,7 @@ class Model
 
     public function __clone()
     {
-        $this->__relationships = array();
+        $this->__relationships = [];
         $this->reset_dirty();
         return $this;
     }
@@ -1360,14 +1344,14 @@ class Model
      *
      * # would be the equivalent of
      * if (!Person::find_by_name('Tito'))
-     *   Person::create(array('Tito'));
+     *   Person::create(['Tito']);
      * </code>
      *
      * Some other examples of find_or_create_by:
      *
      * <code>
      * Person::find_or_create_by_name_and_id('Tito',1);
-     * Person::find_or_create_by_name_and_id(array('name' => 'Tito', 'id' => 1));
+     * Person::find_or_create_by_name_and_id(['name' => 'Tito', 'id' => 1]);
      * </code>
      *
      * @param string $method Name of method
@@ -1428,7 +1412,7 @@ class Model
                 $args = $args[0];
             }
 
-            $association_name = str_replace(array('build_', 'create_'), '', $method);
+            $association_name = str_replace(['build_', 'create_'], '', $method);
             $method = str_replace($association_name, 'association', $method);
             $table = static::table();
 
@@ -1461,7 +1445,7 @@ class Model
      * Get a count of qualifying records.
      *
      * <code>
-     * YourModel::count(array('conditions' => 'amount > 3.14159265'));
+     * YourModel::count(['conditions' => 'amount > 3.14159265']);
      * </code>
      *
      * @see find
@@ -1492,8 +1476,8 @@ class Model
      *
      * <code>
      * SomeModel::exists(123);
-     * SomeModel::exists(array('conditions' => array('id=? and name=?', 123, 'Tito')));
-     * SomeModel::exists(array('id' => 123, 'name' => 'Tito'));
+     * SomeModel::exists(['conditions' => ['id=? and name=?', 123, 'Tito']]);
+     * SomeModel::exists(['id' => 123, 'name' => 'Tito']);
      * </code>
      *
      * @see find
@@ -1539,24 +1523,24 @@ class Model
      * YourModel::find(1,2,3);
      *
      * # finding by pk accepts an options array
-     * YourModel::find(123,array('order' => 'name desc'));
+     * YourModel::find(123,['order' => 'name desc']);
      * </code>
      *
      * Finding by using a conditions array:
      *
      * <code>
-     * YourModel::find('first', array('conditions' => array('name=?','Tito'),
-     *   'order' => 'name asc'))
-     * YourModel::find('all', array('conditions' => 'amount > 3.14159265'));
-     * YourModel::find('all', array('conditions' => array('id in(?)', array(1,2,3))));
+     * YourModel::find('first', ['conditions' => ['name=?','Tito'],
+     *   'order' => 'name asc'])
+     * YourModel::find('all', ['conditions' => 'amount > 3.14159265']);
+     * YourModel::find('all', ['conditions' => ['id in(?)', [1,2,3]]]);
      * </code>
      *
      * Finding by using a hash:
      *
      * <code>
-     * YourModel::find(array('name' => 'Tito', 'id' => 1));
-     * YourModel::find('first',array('name' => 'Tito', 'id' => 1));
-     * YourModel::find('all',array('name' => 'Tito', 'id' => 1));
+     * YourModel::find(['name' => 'Tito', 'id' => 1]);
+     * YourModel::find('first',['name' => 'Tito', 'id' => 1]);
+     * YourModel::find('all',['name' => 'Tito', 'id' => 1]);
      * </code>
      *
      * An options array can take the following parameters:
@@ -1565,8 +1549,8 @@ class Model
      * <li><b>select:</b> A SQL fragment for what fields to return such as: '*', 'people.*', 'first_name, last_name, id'</li>
      * <li><b>joins:</b> A SQL join fragment such as: 'JOIN roles ON(roles.user_id=user.id)' or a named association on the model</li>
      * <li><b>include:</b> TODO not implemented yet</li>
-     * <li><b>conditions:</b> A SQL fragment such as: 'id=1', array('id=1'), array('name=? and id=?','Tito',1), array('name IN(?)', array('Tito','Bob')),
-     * array('name' => 'Tito', 'id' => 1)</li>
+     * <li><b>conditions:</b> A SQL fragment such as: 'id=1', ['id=1'], ['name=? and id=?','Tito',1], ['name IN(?)', ['Tito','Bob']],
+     * ['name' => 'Tito', 'id' => 1]</li>
      * <li><b>limit:</b> Number of records to limit the query to</li>
      * <li><b>offset:</b> The row offset to return results from for the query</li>
      * <li><b>order:</b> A SQL fragment for order such as: 'name asc', 'name asc, id desc'</li>
@@ -1601,7 +1585,7 @@ class Model
 
                 case 'last':
                     if (!array_key_exists('order', $options)) {
-                        $options['order'] = join(' DESC, ', static::table()->pk) . ' DESC';
+                        $options['order'] = implode(' DESC, ', static::table()->pk) . ' DESC';
                     } else {
                         $options['order'] = SQLBuilder::reverse_order($options['order']);
                     }
@@ -1640,11 +1624,11 @@ class Model
      */
     protected static function get_models_from_cache($pks, $options)
     {
-        $models = array();
+        $models = [];
         $table = static::table();
 
         if (!is_array($pks)) {
-            $pks = array($pks);
+            $pks = [$pks];
         }
 
         foreach ($pks as $pk) {
@@ -1674,6 +1658,17 @@ class Model
 
         $table = static::table();
 
+        // A non-numeric value cannot match an integer key. MySQL silently coerces
+        // it to 0; PostgreSQL rejects the bound value with a type error.
+        $pk_column = $table->columns[$table->pk[0]] ?? null;
+        if ($pk_column && $pk_column->type == Column::INTEGER) {
+            foreach ((array)$values as $value) {
+                if (!is_numeric($value)) {
+                    throw new Exceptions\RecordNotFound("Couldn't find " . get_called_class() . " with ID=$value");
+                }
+            }
+        }
+
         if ($table->cache_individual_model) {
             $list = static::get_models_from_cache($values, $options);
         } else {
@@ -1685,7 +1680,7 @@ class Model
         if ($results != ($expected = count((array)$values))) {
             $class = get_called_class();
             if (is_array($values)) {
-                $values = join(',', $values);
+                $values = implode(',', $values);
             }
 
             if ($expected == 1) {
@@ -1701,7 +1696,7 @@ class Model
      * Find using a raw SELECT query.
      *
      * <code>
-     * YourModel::find_by_sql("SELECT * FROM people WHERE name=?",array('Tito'));
+     * YourModel::find_by_sql("SELECT * FROM people WHERE name=?",['Tito']);
      * YourModel::find_by_sql("SELECT * FROM people WHERE name='Tito'");
      * </code>
      *
@@ -1741,7 +1736,7 @@ class Model
             $diff = array_diff($keys, self::$VALID_OPTIONS);
 
             if (!empty($diff) && $throw) {
-                throw new Exceptions\ActiveRecordException("Unknown key(s): " . join(', ', $diff));
+                throw new Exceptions\ActiveRecordException("Unknown key(s): " . implode(', ', $diff));
             }
 
             $intersect = array_intersect($keys, self::$VALID_OPTIONS);
@@ -1758,12 +1753,12 @@ class Model
      *
      * @internal This needs to eventually support composite keys.
      * @param mixed $args Primary key value(s)
-     * @return array An array in the form array(name => value, ...)
+     * @return array An array in the form [name => value, ...]
      */
     public static function pk_conditions($args)
     {
         $table = static::table();
-        $ret = array($table->pk[0] => $args);
+        $ret = [$table->pk[0] => $args];
         return $ret;
     }
 
@@ -1776,7 +1771,7 @@ class Model
      */
     public static function extract_and_validate_options(array &$array)
     {
-        $options = array();
+        $options = [];
 
         if ($array) {
             $last = &$array[count($array) - 1];
@@ -1791,7 +1786,7 @@ class Model
                     throw $e;
                 }
 
-                $options = array('conditions' => $last);
+                $options = ['conditions' => $last];
             }
         }
         return $options;
@@ -1804,7 +1799,7 @@ class Model
      * @param array $options An array containing options for json serialization (see {@link Serialization} for valid options)
      * @return string JSON representation of the model
      */
-    public function to_json(array $options = array())
+    public function to_json(array $options = [])
     {
         return $this->serialize('Json', $options);
     }
@@ -1816,7 +1811,7 @@ class Model
      * @param array $options An array containing options for xml serialization (see {@link Serialization} for valid options)
      * @return string XML representation of the model
      */
-    public function to_xml(array $options = array())
+    public function to_xml(array $options = [])
     {
         return $this->serialize('Xml', $options);
     }
@@ -1830,10 +1825,10 @@ class Model
    * <code>
    * ActiveRecord\Serializers\CsvSerializer::$delimiter=';';
    * ActiveRecord\Serializers\CsvSerializer::$enclosure='';
-   * YourModel::find('first')->to_csv(array('only'=>array('name','level')));
+   * YourModel::find('first')->to_csv(['only'=>['name','level']]);
    * returns: Joe,2
    *
-   * YourModel::find('first')->to_csv(array('only_header'=>true,'only'=>array('name','level')));
+   * YourModel::find('first')->to_csv(['only_header'=>true,'only'=>['name','level']]);
    * returns: name,level
    * </code>
    *
@@ -1841,7 +1836,7 @@ class Model
    * @param array $options An array containing options for csv serialization (see {@link Serialization} for valid options)
    * @return string CSV representation of the model
    */
-    public function to_csv(array $options = array())
+    public function to_csv(array $options = [])
     {
         return $this->serialize('Csv', $options);
     }
@@ -1853,7 +1848,7 @@ class Model
      * @param array $options An array containing options for json serialization (see {@link Serialization} for valid options)
      * @return array Array representation of the model
      */
-    public function to_array(array $options = array())
+    public function to_array(array $options = [])
     {
         return $this->serialize('Array', $options);
     }
@@ -1900,7 +1895,7 @@ class Model
      * <code>
      * YourModel::transaction(function()
      * {
-     *   YourModel::create(array("name" => "blah"));
+     *   YourModel::create(["name" => "blah"]);
      * });
      * </code>
      *
@@ -1911,13 +1906,13 @@ class Model
      * <code>
      * YourModel::transaction(function()
      * {
-     *   YourModel::create(array("name" => "blah"));
+     *   YourModel::create(["name" => "blah"]);
      *   throw new Exception("rollback!");
      * });
      *
      * YourModel::transaction(function()
      * {
-     *   YourModel::create(array("name" => "blah"));
+     *   YourModel::create(["name" => "blah"]);
      *   return false; # rollback!
      * });
      * </code>

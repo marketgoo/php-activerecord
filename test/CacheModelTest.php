@@ -51,17 +51,17 @@ class CacheModelTest extends DatabaseTest
 
     public function test_cache_key()
     {
-        $method = $this->set_method_public('Author', 'cache_key');
+        $method = $this->set_method_public(Author::class, 'cache_key');
         $author = Author::first();
 
-        $this->assert_equals("Author-1", $method->invokeArgs($author, array()));
+        $this->assert_equals(Author::class . "-1", $method->invokeArgs($author, []));
     }
 
     public function test_model_cache_find_by_pk()
     {
         $publisher = Publisher::find(1);
-        $method = $this->set_method_public('Publisher', 'cache_key');
-        $cache_key = $method->invokeArgs($publisher, array());
+        $method = $this->set_method_public(Publisher::class, 'cache_key');
+        $cache_key = $method->invokeArgs($publisher, []);
         $from_cache = Cache::$adapter->read($cache_key);
 
         $this->assertEquals($publisher->name, $from_cache->name);
@@ -69,13 +69,13 @@ class CacheModelTest extends DatabaseTest
 
     public function test_model_cache_new()
     {
-        $publisher = new Publisher(array(
+        $publisher = new Publisher([
             'name' => 'HarperCollins'
-        ));
+        ]);
         $publisher->save();
 
-        $method = $this->set_method_public('Publisher', 'cache_key');
-        $cache_key = $method->invokeArgs($publisher, array());
+        $method = $this->set_method_public(Publisher::class, 'cache_key');
+        $cache_key = $method->invokeArgs($publisher, []);
 
         // Model is cached on first find
         $actual = Publisher::find($publisher->id);
@@ -86,11 +86,11 @@ class CacheModelTest extends DatabaseTest
 
     public function test_model_cache_find()
     {
-        $method = $this->set_method_public('Publisher', 'cache_key');
+        $method = $this->set_method_public(Publisher::class, 'cache_key');
         $publishers = Publisher::all();
 
         foreach ($publishers as $publisher) {
-            $cache_key = $method->invokeArgs($publisher, array());
+            $cache_key = $method->invokeArgs($publisher, []);
             $from_cache = Cache::$adapter->read($cache_key);
 
             $this->assertEquals($publisher->name, $from_cache->name);
@@ -99,17 +99,17 @@ class CacheModelTest extends DatabaseTest
 
     public function test_regular_models_not_cached()
     {
-        $method = $this->set_method_public('Author', 'cache_key');
+        $method = $this->set_method_public(Author::class, 'cache_key');
         $author = Author::first();
-        $cache_key = $method->invokeArgs($author, array());
+        $cache_key = $method->invokeArgs($author, []);
         $this->assertFalse(Cache::$adapter->read($cache_key));
     }
 
     public function test_model_delete_from_cache()
     {
-        $method = $this->set_method_public('Publisher', 'cache_key');
+        $method = $this->set_method_public(Publisher::class, 'cache_key');
         $publisher = Publisher::find(1);
-        $cache_key = $method->invokeArgs($publisher, array());
+        $cache_key = $method->invokeArgs($publisher, []);
 
         $publisher->delete();
 
@@ -119,10 +119,10 @@ class CacheModelTest extends DatabaseTest
 
     public function test_model_update_cache()
     {
-        $method = $this->set_method_public('Publisher', 'cache_key');
+        $method = $this->set_method_public(Publisher::class, 'cache_key');
 
         $publisher = Publisher::find(1);
-        $cache_key = $method->invokeArgs($publisher, array());
+        $cache_key = $method->invokeArgs($publisher, []);
         $this->assertEquals('Random House', $publisher->name);
 
         $from_cache = Cache::$adapter->read($cache_key);
@@ -140,14 +140,14 @@ class CacheModelTest extends DatabaseTest
 
     public function test_model_reload_expires_cache()
     {
-        $method = $this->set_method_public('Publisher', 'cache_key');
+        $method = $this->set_method_public(Publisher::class, 'cache_key');
 
         $publisher = Publisher::find(1);
-        $cache_key = $method->invokeArgs($publisher, array());
+        $cache_key = $method->invokeArgs($publisher, []);
         $this->assertEquals('Random House', $publisher->name);
 
         // Raw query to not update model properties
-        Publisher::query('UPDATE publishers SET name = ? WHERE publisher_id = ?', array('Specific House', 1));
+        Publisher::query('UPDATE publishers SET name = ? WHERE publisher_id = ?', ['Specific House', 1]);
 
         $publisher->reload();
 

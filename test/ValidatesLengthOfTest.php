@@ -6,14 +6,14 @@ use TestHelpers\DatabaseTest;
 
 class BookLength extends Model
 {
-    static $table = 'books';
-    static $validates_length_of = [];
+    public static $table = 'books';
+    public static $validates_length_of = [];
 }
 
 class BookSize extends Model
 {
-    static $table = 'books';
-    static $validates_size_of = [];
+    public static $table = 'books';
+    public static $validates_size_of = [];
 }
 
 class ValidatesLengthOfTest extends DatabaseTest

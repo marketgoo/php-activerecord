@@ -1,0 +1,125 @@
+name: Tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+# A newer push to the same branch or pull request cancels the run it supersedes.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phpunit:
+    name: PHP ${{ matrix.php }} / ${{ matrix.mariadb && format('MariaDB {0}', matrix.mariadb) || format('MySQL {0}', matrix.mysql) }} / PostgreSQL ${{ matrix.pgsql }} / default ${{ matrix.adapter || 'mysql' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      # One baseline (PHP 8.4, MySQL 8.4, PostgreSQL 18); every other job
+      # changes exactly one axis so a failure points at a single variable.
+      # The model-level tests run against the default adapter (PHPAR_ADAPTER),
+      # MySQL unless a row says otherwise; the adapter tests always cover all
+      # three. SQLite is bundled with each PHP build and is exercised in every job.
+      matrix:
+        include:
+          - { php: '8.4', mysql: '8.4', pgsql: '18' }
+          # MySQL axis
+          - { php: '8.4', mysql: '5.7', pgsql: '18' }
+          - { php: '8.4', mysql: '8.0', pgsql: '18' }
+          # MariaDB, through the same adapter: 10.11 (Debian 12, Ubuntu 24.04,
+          # RHEL 9/10), 11.8 (Debian 13) and the current 12.3 LTS.
+          - { php: '8.4', mariadb: '10.11', pgsql: '18' }
+          - { php: '8.4', mariadb: '11.8', pgsql: '18' }
+          - { php: '8.4', mariadb: '12.3', pgsql: '18' }
+          # PostgreSQL axis, with PostgreSQL as the default adapter
+          - { php: '8.4', mysql: '8.4', pgsql: '14', adapter: pgsql }
+          - { php: '8.4', mysql: '8.4', pgsql: '16', adapter: pgsql }
+          - { php: '8.4', mysql: '8.4', pgsql: '18', adapter: pgsql }
+          # PHP axis
+          - { php: '8.2', mysql: '8.4', pgsql: '18' }
+          - { php: '8.3', mysql: '8.4', pgsql: '18' }
+          - { php: '8.5', mysql: '8.4', pgsql: '18' }
+
+    # Data directories live on tmpfs: the suite commits tens of thousands of
+    # tiny transactions and each one fsyncs, which is slow on the runner's
+    # network-backed disk. The databases are throwaway, so nothing is lost.
+    services:
+      mysql:
+        # The MariaDB image accepts the MYSQL_* variables and speaks the same protocol.
+        image: ${{ matrix.mariadb && format('mariadb:{0}', matrix.mariadb) || format('mysql:{0}', matrix.mysql) }}
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: test
+          MYSQL_USER: test
+          MYSQL_PASSWORD: test
+        ports:
+          - 3306:3306
+        options: >-
+          --tmpfs /var/lib/mysql:rw
+          --health-cmd "${{ matrix.mariadb && 'healthcheck.sh --connect --innodb_initialized' || 'mysqladmin ping -h 127.0.0.1 -uroot -proot' }}"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+      postgres:
+        image: postgres:${{ matrix.pgsql }}
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test
+          # Keep the data directory on the tmpfs above. The image default is a
+          # declared volume (/var/lib/postgresql/data up to 17, a versioned
+          # subdirectory from 18), and 18 refuses a mount at the old path.
+          PGDATA: /var/lib/postgresql/pgdata
+        ports:
+          - 5432:5432
+        options: >-
+          --tmpfs /var/lib/postgresql:rw
+          --health-cmd "pg_isready -h 127.0.0.1 -U test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+      memcached:
+        image: memcached:1.6-alpine
+        ports:
+          - 11211:11211
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: pdo_mysql, pdo_pgsql, pdo_sqlite, memcached
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Run tests
+        run: vendor/bin/phpunit
+        env:
+          PHPAR_ADAPTER: ${{ matrix.adapter || 'mysql' }}
+          PHPAR_MYSQL: mysql://test:test@127.0.0.1/test
+          PHPAR_PGSQL: pgsql://test:test@127.0.0.1/test
+
+  phpcs:
+    name: Coding standard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Run phpcs
+        run: vendor/bin/phpcs

@@ -1,0 +1,75 @@
+# Database servers for running the test suite locally, mirroring the versions
+# tested in .github/workflows/tests.yml. Start only what you need, e.g.:
+#
+#   docker compose up -d mysql84 pgsql18 memcached
+#   PHPAR_MYSQL=mysql://test:test@127.0.0.1:33084/test \
+#   PHPAR_PGSQL=pgsql://test:test@127.0.0.1:54318/test \
+#   vendor/bin/phpunit
+#
+# The databases are throwaway, so they keep their data on tmpfs and skip
+# per-commit fsyncs. That is the difference between a one-minute and a
+# five-second run when Docker runs inside a VM (macOS, Windows).
+
+x-mysql: &mysql
+  environment:
+    MYSQL_ROOT_PASSWORD: root
+    MYSQL_DATABASE: test
+    MYSQL_USER: test
+    MYSQL_PASSWORD: test
+  tmpfs:
+    - /var/lib/mysql
+  command: --innodb-flush-log-at-trx-commit=0 --innodb-doublewrite=0 --skip-log-bin
+
+x-pgsql: &pgsql
+  environment:
+    POSTGRES_USER: test
+    POSTGRES_PASSWORD: test
+    POSTGRES_DB: test
+    PGDATA: /var/lib/postgresql/pgdata   # see the note in the workflow file
+  tmpfs:
+    - /var/lib/postgresql
+  command: -c fsync=off -c synchronous_commit=off -c full_page_writes=off
+
+services:
+  mysql57:
+    <<: *mysql
+    image: mysql:5.7
+    platform: linux/amd64   # no arm64 image exists; runs emulated on Apple silicon
+    ports: ["127.0.0.1:33057:3306"]
+  mysql80:
+    <<: *mysql
+    image: mysql:8.0
+    ports: ["127.0.0.1:33080:3306"]
+  mysql84:
+    <<: *mysql
+    image: mysql:8.4
+    ports: ["127.0.0.1:33084:3306"]
+  mariadb1011:
+    <<: *mysql
+    image: mariadb:10.11
+    ports: ["127.0.0.1:33111:3306"]
+  mariadb118:
+    <<: *mysql
+    image: mariadb:11.8
+    ports: ["127.0.0.1:33118:3306"]
+  mariadb123:
+    <<: *mysql
+    image: mariadb:12.3
+    ports: ["127.0.0.1:33123:3306"]
+
+  pgsql14:
+    <<: *pgsql
+    image: postgres:14
+    ports: ["127.0.0.1:54314:5432"]
+  pgsql16:
+    <<: *pgsql
+    image: postgres:16
+    ports: ["127.0.0.1:54316:5432"]
+  pgsql18:
+    <<: *pgsql
+    image: postgres:18
+    ports: ["127.0.0.1:54318:5432"]
+
+  memcached:
+    image: memcached:1.6-alpine
+    ports: ["127.0.0.1:11211:11211"]

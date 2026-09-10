@@ -6,9 +6,9 @@ use ActiveRecord\Model;
 
 class Book extends Model
 {
-    static $belongs_to = ['author'];
-    static $has_one = [];
-    static $use_custom_get_name_getter = false;
+    public static $belongs_to = ['author'];
+    public static $has_one = [];
+    public static $use_custom_get_name_getter = false;
 
     public function upper_name()
     {

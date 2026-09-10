@@ -22,7 +22,7 @@ require_once 'vendor/autoload.php';
 use TestHelpers\DatabaseTest;
 
 // whether or not to run the slow non-crucial tests
-$GLOBALS['slow_tests'] = false;
+$GLOBALS['slow_tests'] = getenv('PHPAR_SLOW_TESTS') === 'true';
 
 // whether or not to show warnings when Log or Memcache is missing
 $GLOBALS['show_warnings'] = true;
@@ -34,24 +34,16 @@ if (getenv('LOG') !== 'false') {
 ActiveRecord\Config::initialize(function ($cfg) {
     $cfg->set_model_directory(realpath(__DIR__ . '/../models'));
     $cfg->set_model_namespace("TestModels");
-    $cfg->set_connections(array(
+    $cfg->set_connections([
         'mysql'  => getenv('PHPAR_MYSQL')  ?: 'mysql://test:test@127.0.0.1/test',
         'pgsql'  => getenv('PHPAR_PGSQL')  ?: 'pgsql://test:test@127.0.0.1/test',
-        'oci'    => getenv('PHPAR_OCI')    ?: 'oci://test:test@127.0.0.1/dev',
-        'sqlite' => getenv('PHPAR_SQLITE') ?: 'sqlite://test.db'));
+        'sqlite' => getenv('PHPAR_SQLITE') ?: 'sqlite://test.db']);
 
-    $cfg->set_default_connection('mysql');
-
-    for ($i = 0; $i < count($GLOBALS['argv']); ++$i) {
-        if ($GLOBALS['argv'][$i] == '--adapter') {
-            $cfg->set_default_connection($GLOBALS['argv'][$i + 1]);
-        } elseif ($GLOBALS['argv'][$i] == '--slow-tests') {
-            $GLOBALS['slow_tests'] = true;
-        }
-    }
+    // Adapter the model-level tests run against: mysql (default), pgsql or sqlite.
+    $cfg->set_default_connection(getenv('PHPAR_ADAPTER') ?: 'mysql');
 
     if (class_exists('Log_file')) { // PEAR Log installed
-        $logger = new Log_file(dirname(__FILE__) . '/../log/query.log', 'ident', array('mode' => 0664, 'timeFormat' =>  '%Y-%m-%d %H:%M:%S'));
+        $logger = new Log_file(dirname(__FILE__) . '/../log/query.log', 'ident', ['mode' => 0664, 'timeFormat' =>  '%Y-%m-%d %H:%M:%S']);
 
         $cfg->set_logging(true);
         $cfg->set_logger($logger);

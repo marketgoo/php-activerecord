@@ -15,9 +15,9 @@ use ActiveRecord\Exceptions\ConfigException;
  * <code>
  * ActiveRecord::initialize(function($cfg) {
  *   $cfg->set_model_home('models');
- *   $cfg->set_connections(array(
+ *   $cfg->set_connections([
  *     'development' => 'mysql://user:pass@development.com/awesome_development',
- *     'production' => 'mysql://user:pass@production.com/awesome_production'));
+ *     'production' => 'mysql://user:pass@production.com/awesome_production']);
  * });
  * </code>
  *
@@ -31,9 +31,9 @@ class Config extends Singleton
      * <code>
      * ActiveRecord\Config::initialize(function($cfg) {
      *   $cfg->set_model_directory('/your/app/models');
-     *   $cfg->set_connections(array(
+     *   $cfg->set_connections([
      *     'development' => 'mysql://user:pass@development.com/awesome_development',
-     *     'production' => 'mysql://user:pass@production.com/awesome_production'));
+     *     'production' => 'mysql://user:pass@production.com/awesome_production']);
      * });
      * </code>
      *
@@ -52,7 +52,7 @@ class Config extends Singleton
      *
      * @var array
      */
-    private $connections = array();
+    private $connections = [];
 
     /**
      * Directory for the auto_loading of model classes.
@@ -106,8 +106,8 @@ class Config extends Singleton
      * <code>
      * ActiveRecord\Config::initialize(function($cfg) {
      *   $cfg->set_model_directory('/path/to/your/model_directory');
-     *   $cfg->set_connections(array(
-     *     'development' => 'mysql://username:password@127.0.0.1/database_name'));
+     *   $cfg->set_connections([
+     *     'development' => 'mysql://username:password@127.0.0.1/database_name']);
      * });
      * </code>
      *
@@ -116,8 +116,8 @@ class Config extends Singleton
      * <code>
      * $cfg = ActiveRecord\Config::instance();
      * $cfg->set_model_directory('/path/to/your/model_directory');
-     * $cfg->set_connections(array('development' =>
-     *   'mysql://username:password@localhost/database_name'));
+     * $cfg->set_connections(['development' =>
+     *   'mysql://username:password@localhost/database_name']);
      * </code>
      *
      * @param Closure $initializer A closure
@@ -132,8 +132,8 @@ class Config extends Singleton
      * Sets the list of database connection strings.
      *
      * <code>
-     * $config->set_connections(array(
-     *     'development' => 'mysql://username:password@127.0.0.1/database_name'));
+     * $config->set_connections([
+     *     'development' => 'mysql://username:password@127.0.0.1/database_name']);
      * </code>
      *
      * @param array $connections Array of connections
@@ -363,13 +363,13 @@ class Config extends Singleton
      *
      * <code>
      * $config->set_cache("memcached://localhost");
-     * $config->set_cache("memcached://localhost",array("expire" => 60));
+     * $config->set_cache("memcached://localhost",["expire" => 60]);
      * </code>
      *
      * @param string $url Url to your cache server.
      * @param array $options Array of options
      */
-    public function set_cache($url, $options = array())
+    public function set_cache($url, $options = [])
     {
         Cache::initialize($url, $options);
     }

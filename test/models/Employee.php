@@ -6,5 +6,5 @@ use ActiveRecord\Model;
 
 class Employee extends Model
 {
-    static $has_one;
+    public static $has_one;
 }
