@@ -13,8 +13,8 @@ use ActiveRecord\Exceptions\CacheException;
  */
 class Cache
 {
-    static $adapter = null;
-    static $options = array();
+    public static $adapter = null;
+    public static $options = [];
 
     /**
      * Initializes the cache.
@@ -28,10 +28,10 @@ class Cache
      *
      * Ex:
      * $cfg_ar = ActiveRecord\Config::instance();
-     * $cfg_ar->set_cache('memcached://localhost:11211',array(
+     * $cfg_ar->set_cache('memcached://localhost:11211',[
      *     'namespace' => 'my_cool_app',
      *     'expire'        => 120
-     * ));
+     * ]);
      *
      * In the example above all the keys expire after 120 seconds, and the
      * all get a postfix 'my_cool_app'.
@@ -41,7 +41,7 @@ class Cache
      * @param string $url URL to your cache server
      * @param array $options Specify additional options
      */
-    public static function initialize($url, $options = array())
+    public static function initialize($url, $options = [])
     {
         if ($url) {
             $url = parse_url($url);
@@ -56,7 +56,7 @@ class Cache
             static::$adapter = null;
         }
 
-        static::$options = array_merge(array('expire' => 30, 'namespace' => ''), $options);
+        static::$options = array_merge(['expire' => 30, 'namespace' => ''], $options);
     }
 
     public static function flush()

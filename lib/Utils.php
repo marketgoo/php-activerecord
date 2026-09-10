@@ -144,7 +144,7 @@ class Utils
 
     public static function collect(&$enumerable, $name_or_closure)
     {
-        $ret = array();
+        $ret = [];
 
         foreach ($enumerable as $value) {
             if (is_string($name_or_closure)) {
@@ -176,10 +176,10 @@ class Utils
 
     public static function extract_options($options)
     {
-        return is_array(end($options)) ? end($options) : array();
+        return is_array(end($options)) ? end($options) : [];
     }
 
-    public static function add_condition(&$conditions = array(), $condition = null, $conjuction = 'AND')
+    public static function add_condition(&$conditions = [], $condition = null, $conjuction = 'AND')
     {
         if (is_array($condition)) {
             if (empty($conditions)) {
@@ -226,7 +226,7 @@ class Utils
         return empty($var) || (strlen($var) == 0);
     }
 
-    private static $plural = array(
+    private static $plural = [
         '/(quiz)$/i'               => "$1zes",
         '/^(ox)$/i'                => "$1en",
         '/([m|l])ouse$/i'          => "$1ice",
@@ -246,9 +246,9 @@ class Utils
         '/(us)$/i'                 => "$1es",
         '/s$/i'                    => "s",
         '/$/'                      => "s"
-    );
+    ];
 
-    private static $singular = array(
+    private static $singular = [
         '/(quiz)zes$/i'             => "$1",
         '/(matr)ices$/i'            => "$1ix",
         '/(vert|ind)ices$/i'        => "$1ex",
@@ -278,9 +278,9 @@ class Utils
         '/(us)es$/i'                => "$1",
         '/(us|ss)$/i'               => "$1",
         '/s$/i'                     => ""
-    );
+    ];
 
-    private static $irregular = array(
+    private static $irregular = [
         'move'   => 'moves',
         'foot'   => 'feet',
         'goose'  => 'geese',
@@ -289,9 +289,9 @@ class Utils
         'man'    => 'men',
         'tooth'  => 'teeth',
         'person' => 'people'
-    );
+    ];
 
-    private static $uncountable = array(
+    private static $uncountable = [
         'sheep',
         'fish',
         'deer',
@@ -301,7 +301,7 @@ class Utils
         'rice',
         'information',
         'equipment'
-    );
+    ];
 
     public static function pluralize($string)
     {

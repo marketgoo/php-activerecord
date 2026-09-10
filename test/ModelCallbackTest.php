@@ -19,10 +19,10 @@ class ModelCallbackTest extends DatabaseTest
     public function register_and_invoke_callbacks($callbacks, $return, $closure)
     {
         if (!is_array($callbacks)) {
-            $callbacks = array($callbacks);
+            $callbacks = [$callbacks];
         }
 
-        $fired = array();
+        $fired = [];
 
         foreach ($callbacks as $name) {
             $this->callback->register($name, function ($model) use (&$fired, $name, $return) {
@@ -50,7 +50,7 @@ class ModelCallbackTest extends DatabaseTest
     public function assert_fires_returns_false($callbacks, $only_fire, $closure)
     {
         if (!is_array($only_fire)) {
-            $only_fire = array($only_fire);
+            $only_fire = [$only_fire];
         }
 
         $executed = $this->register_and_invoke_callbacks($callbacks, false, $closure);
@@ -62,7 +62,7 @@ class ModelCallbackTest extends DatabaseTest
 
     public function test_after_construct_fires_by_default()
     {
-        $this->assert_fires(array('after_construct'), function ($model) {
+        $this->assert_fires(['after_construct'], function ($model) {
             new Venue();
         });
     }
@@ -70,7 +70,7 @@ class ModelCallbackTest extends DatabaseTest
     public function test_fire_validation_callbacks_on_insert()
     {
         $this->assert_fires(
-            array('before_validation','after_validation','before_validation_on_create','after_validation_on_create'),
+            ['before_validation','after_validation','before_validation_on_create','after_validation_on_create'],
             function ($model) {
                 $model = new Venue();
                 $model->save();
@@ -81,7 +81,7 @@ class ModelCallbackTest extends DatabaseTest
     public function test_fire_validation_callbacks_on_update()
     {
         $this->assert_fires(
-            array('before_validation','after_validation','before_validation_on_update','after_validation_on_update'),
+            ['before_validation','after_validation','before_validation_on_update','after_validation_on_update'],
             function ($model) {
                 $model = Venue::first();
                 $model->save();
@@ -99,7 +99,7 @@ class ModelCallbackTest extends DatabaseTest
     public function test_before_validation_returning_false_cancels_callbacks()
     {
         $this->assert_fires_returns_false(
-            array('before_validation','after_validation'),
+            ['before_validation','after_validation'],
             'before_validation',
             function ($model) {
                 $model->save();
@@ -110,7 +110,7 @@ class ModelCallbackTest extends DatabaseTest
     public function test_fires_before_save_and_before_update_when_updating()
     {
         $this->assert_fires(
-            array('before_save','before_update'),
+            ['before_save','before_update'],
             function ($model) {
                 $model = Venue::first();
                 $model->name = "something new";
@@ -122,7 +122,7 @@ class ModelCallbackTest extends DatabaseTest
     public function test_before_save_returning_false_cancels_callbacks()
     {
         $this->assert_fires_returns_false(
-            array('before_save','before_create'),
+            ['before_save','before_create'],
             'before_save',
             function ($model) {
                 $model = new Venue();
@@ -134,7 +134,7 @@ class ModelCallbackTest extends DatabaseTest
     public function test_destroy()
     {
         $this->assert_fires(
-            array('before_destroy','after_destroy'),
+            ['before_destroy','after_destroy'],
             function ($model) {
                 $model->delete();
             }

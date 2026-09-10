@@ -17,8 +17,8 @@ use ActiveRecord\Connection;
  */
 class PgsqlAdapter extends Connection
 {
-    static $QUOTE_CHARACTER = '"';
-    static $DEFAULT_PORT = 5432;
+    public static $QUOTE_CHARACTER = '"';
+    public static $DEFAULT_PORT = 5432;
 
     public function supports_sequences()
     {
@@ -66,7 +66,7 @@ WHERE c.relname = ?
       AND a.atttypid = t.oid
 ORDER BY a.attnum
 SQL;
-        $values = array($table);
+        $values = [$table];
         return $this->query($sql, $values);
     }
 

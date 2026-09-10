@@ -6,7 +6,7 @@ use ActiveRecord\Model;
 
 class JoinBook extends Model
 {
-    static $table_name = 'books';
+    public static $table_name = 'books';
 
-    static $belongs_to = [];
+    public static $belongs_to = [];
 }

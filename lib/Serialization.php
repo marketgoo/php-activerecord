@@ -30,14 +30,14 @@ use ActiveRecord\Exceptions\UndefinedPropertyException;
  * # run $model->encoded_description() and include its return value
  * # include the comments association
  * # include posts association with its own options (nested)
- * $model->to_json(array(
- *   'only' => array('id','name', 'encoded_description'),
- *   'methods' => array('encoded_description'),
- *   'include' => array('comments', 'posts' => array('only' => 'id'))
- * ));
+ * $model->to_json([
+ *   'only' => ['id','name', 'encoded_description'],
+ *   'methods' => ['encoded_description'],
+ *   'include' => ['comments', 'posts' => ['only' => 'id']]
+ * ]);
  *
  * # except the password field from being included
- * $model->to_xml(array('except' => 'password')));
+ * $model->to_xml(['except' => 'password']));
  * </code>
  *
  * @package ActiveRecord
@@ -64,25 +64,25 @@ abstract class Serialization
      * the include option was used:
      *
      * <code>
-     * $user = array('id' => 1, 'name' => 'Tito',
-     *   'permissions' => array(
-     *     'permission' => array(
-     *       array('id' => 100, 'name' => 'admin'),
-     *       array('id' => 101, 'name' => 'normal')
-     *     )
-     *   )
-     * );
+     * $user = ['id' => 1, 'name' => 'Tito',
+     *   'permissions' => [
+     *     'permission' => [
+     *       ['id' => 100, 'name' => 'admin'],
+     *       ['id' => 101, 'name' => 'normal']
+     *     ]
+     *   ]
+     * ];
      * </code>
      *
      * Setting to false will produce this:
      *
      * <code>
-     * $user = array('id' => 1, 'name' => 'Tito',
-     *   'permissions' => array(
-     *     array('id' => 100, 'name' => 'admin'),
-     *     array('id' => 101, 'name' => 'normal')
-     *   )
-     * );
+     * $user = ['id' => 1, 'name' => 'Tito',
+     *   'permissions' => [
+     *     ['id' => 100, 'name' => 'admin'],
+     *     ['id' => 101, 'name' => 'normal']
+     *   ]
+     * ];
      * </code>
      *
      * @var boolean
@@ -164,7 +164,7 @@ abstract class Serialization
             foreach ($this->options['include'] as $association => $options) {
                 if (!is_array($options)) {
                     $association = $options;
-                    $options = array();
+                    $options = [];
                 }
 
                 try {
@@ -177,7 +177,7 @@ abstract class Serialization
                         $this->attributes[$association] = $serialized->to_a();
                         ;
                     } else {
-                        $includes = array();
+                        $includes = [];
 
                         foreach ($assoc as $a) {
                             $serialized = new $serializer_class($a, $options);
@@ -201,7 +201,7 @@ abstract class Serialization
     final protected function options_to_a($key)
     {
         if (!is_array($this->options[$key])) {
-            $this->options[$key] = array($this->options[$key]);
+            $this->options[$key] = [$this->options[$key]];
         }
     }
 

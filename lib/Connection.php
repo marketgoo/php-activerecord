@@ -83,11 +83,11 @@ abstract class Connection
      * Default PDO options to set for each connection.
      * @var array
      */
-    public static $PDO_OPTIONS = array(
+    public static $PDO_OPTIONS = [
         PDO::ATTR_CASE => PDO::CASE_LOWER,
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_ORACLE_NULLS => PDO::NULL_NATURAL,
-        PDO::ATTR_STRINGIFY_FETCHES => false);
+        PDO::ATTR_STRINGIFY_FETCHES => false];
 
     /**
      * The quote character for stuff like column and field names.
@@ -243,7 +243,7 @@ abstract class Connection
 
         if (isset($url['query'])) {
             foreach (explode('/&/', $url['query']) as $pair) {
-                list($name, $value) = explode('=', $pair);
+                [$name, $value] = explode('=', $pair);
 
                 if ($name == 'charset') {
                     $info->charset = $value;
@@ -288,7 +288,7 @@ abstract class Connection
      */
     public function columns($table)
     {
-        $columns = array();
+        $columns = [];
         $sth = $this->query_column_info($table);
 
         while (($row = $sth->fetch())) {
@@ -327,7 +327,7 @@ abstract class Connection
      * @param array &$values Optional array of bind values
      * @return mixed A result set object
      */
-    public function query($sql, &$values = array())
+    public function query($sql, &$values = [])
     {
         if ($this->logging) {
             $this->logger->log($sql);
@@ -365,7 +365,7 @@ abstract class Connection
      * @param array &$values Optional array of values to bind to the query.
      * @return string
      */
-    public function query_and_fetch_one($sql, &$values = array())
+    public function query_and_fetch_one($sql, &$values = [])
     {
         $sth = $this->query($sql, $values);
         $row = $sth->fetch(PDO::FETCH_NUM);
@@ -394,7 +394,7 @@ abstract class Connection
      */
     public function tables()
     {
-        $tables = array();
+        $tables = [];
         $sth = $this->query_for_tables();
 
         while (($row = $sth->fetch(PDO::FETCH_NUM))) {

@@ -31,7 +31,7 @@ class Expressions
         $this->connection = $connection;
         if (is_array($expressions)) {
             $glue = func_num_args() > 2 ? func_get_arg(2) : ' AND ';
-            list($expressions,$values) = $this->build_sql_from_hash($expressions, $glue);
+            [$expressions,$values] = $this->build_sql_from_hash($expressions, $glue);
         }
 
         if ($expressions != '') {
@@ -92,12 +92,12 @@ class Expressions
     public function to_s($substitute = false, &$options = null)
     {
         if (!$options) {
-            $options = array();
+            $options = [];
         }
 
         $values = array_key_exists('values', $options) ? $options['values'] : $this->values;
         $ret = "";
-        $replace = array();
+        $replace = [];
         $num_values = count($values);
         $len = strlen($this->expressions);
         $quotes = 0;
@@ -124,7 +124,7 @@ class Expressions
     private function build_sql_from_hash(&$hash, $glue)
     {
         $sql = $g = "";
-        $values = array();
+        $values = [];
 
         foreach ($hash as $name => $value) {
             if ($this->connection) {
@@ -144,7 +144,7 @@ class Expressions
 
             $g = $glue;
         }
-        return array($sql, $values);
+        return [$sql, $values];
     }
 
     private function substitute(&$values, $substitute, $pos, $parameter_index)
@@ -169,7 +169,7 @@ class Expressions
 
                 return $ret;
             }
-            return join(',', array_fill(0, $value_count, self::PARAMETER_MARKER));
+            return implode(',', array_fill(0, $value_count, self::PARAMETER_MARKER));
         }
 
         if ($substitute) {

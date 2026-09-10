@@ -6,7 +6,7 @@ use ActiveRecord\Model;
 
 class Host extends Model
 {
-    static $has_many = [
+    public static $has_many = [
         'events',
         ['venues', 'through' => 'events']
     ];

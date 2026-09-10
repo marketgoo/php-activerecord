@@ -106,12 +106,12 @@ class ColumnTest extends SnakeCase_PHPUnit_Framework_TestCase
 
     public function test_cast_leave_null_alone()
     {
-        $types = array(
+        $types = [
             Column::STRING,
             Column::INTEGER,
             Column::DECIMAL,
             Column::DATETIME,
-            Column::DATE);
+            Column::DATE];
 
         foreach ($types as $type) {
             $this->assert_cast($type, null, null);

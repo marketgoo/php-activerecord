@@ -89,7 +89,7 @@ class Table
         if ($model_class_name && array_key_exists($model_class_name, self::$cache)) {
             unset(self::$cache[$model_class_name]);
         } else {
-            self::$cache = array();
+            self::$cache = [];
         }
     }
 
@@ -109,10 +109,10 @@ class Table
         $this->callback = new CallBack($class_name);
         $this->callback->register('before_save', function (Model $model) {
             $model->set_timestamps();
-        }, array('prepend' => true));
+        }, ['prepend' => true]);
         $this->callback->register('after_save', function (Model $model) {
             $model->reset_dirty();
-        }, array('prepend' => true));
+        }, ['prepend' => true]);
     }
 
     public function reestablish_connection($close = true)
@@ -186,10 +186,10 @@ class Table
         if (array_key_exists('conditions', $options)) {
             if (!Utils::is_hash($options['conditions'])) {
                 if (is_string($options['conditions'])) {
-                    $options['conditions'] = array($options['conditions']);
+                    $options['conditions'] = [$options['conditions']];
                 }
 
-                call_user_func_array(array($sql,'where'), $options['conditions']);
+                call_user_func_array([$sql,'where'], $options['conditions']);
             } else {
                 if (!empty($options['mapped_names'])) {
                     $options['conditions'] = $this->map_names($options['conditions'], $options['mapped_names']);
@@ -244,7 +244,7 @@ class Table
         $this->last_sql = $sql;
 
         $collect_attrs_for_includes = is_null($includes) ? false : true;
-        $list = $attrs = array();
+        $list = $attrs = [];
 
         $sth = $this->conn->query($sql, $this->process_data($values));
 
@@ -286,19 +286,19 @@ class Table
      * @param $includes array eager load directives
      * @return void
      */
-    private function execute_eager_load($models = array(), $attrs = array(), $includes = array())
+    private function execute_eager_load($models = [], $attrs = [], $includes = [])
     {
         if (!is_array($includes)) {
-            $includes = array($includes);
+            $includes = [$includes];
         }
 
         foreach ($includes as $index => $name) {
             // nested include
             if (is_array($name)) {
-                $nested_includes = count($name) > 0 ? $name : array();
+                $nested_includes = count($name) > 0 ? $name : [];
                 $name = $index;
             } else {
-                $nested_includes = array();
+                $nested_includes = [];
             }
 
             $rel = $this->get_relationship($name, true);
@@ -443,7 +443,7 @@ class Table
      */
     private function map_names(&$hash, &$map)
     {
-        $ret = array();
+        $ret = [];
 
         foreach ($hash as $name => &$value) {
             if (array_key_exists($name, $map)) {
@@ -457,7 +457,7 @@ class Table
 
     private function map_column_names($hash)
     {
-        $ret = array();
+        $ret = [];
 
         foreach ($hash as $name => $value) {
             $ret[$this->column_name_for($name)] = $value;
@@ -473,7 +473,7 @@ class Table
         }
 
         $date_class = Config::instance()->get_date_class();
-        $ret = array();
+        $ret = [];
 
         foreach ($hash as $name => $value) {
             $name = $this->column_name_for($name);
@@ -495,9 +495,9 @@ class Table
     private function set_primary_key()
     {
         if (($pk = $this->class->getStaticPropertyValue('pk', null)) || ($pk = $this->class->getStaticPropertyValue('primary_key', null))) {
-            $this->pk = is_array($pk) ? $pk : array($pk);
+            $this->pk = is_array($pk) ? $pk : [$pk];
         } else {
-            $this->pk = array();
+            $this->pk = [];
 
             foreach ($this->columns as $c) {
                 if ($c->pk) {
@@ -566,7 +566,7 @@ class Table
 
             foreach (Utils::wrap_strings_in_arrays($definitions) as $definition) {
                 $relationship = null;
-                $definition += array('namespace' => $namespace);
+                $definition += ['namespace' => $namespace];
 
                 switch ($name) {
                     case 'has_many':
@@ -597,14 +597,14 @@ class Table
      * Rebuild the delegates array into format that we can more easily work with in Model.
      * Will end up consisting of array of:
      *
-     * array('delegate' => array('field1','field2',...),
+     * ['delegate' => ['field1','field2',...],
      *       'to'       => 'delegate_to_relationship',
-     *       'prefix'   => 'prefix')
+     *       'prefix'   => 'prefix']
      */
     private function set_delegates()
     {
-        $delegates = $this->class->getStaticPropertyValue('delegate', array());
-        $new = array();
+        $delegates = $this->class->getStaticPropertyValue('delegate', []);
+        $new = [];
 
         if (!array_key_exists('processed', $delegates)) {
             $delegates['processed'] = false;
@@ -620,10 +620,10 @@ class Table
                     $delegate['prefix'] = null;
                 }
 
-                $new_delegate = array(
+                $new_delegate = [
                     'to'        => $delegate['to'],
                     'prefix'    => $delegate['prefix'],
-                    'delegate'  => array());
+                    'delegate'  => []];
 
                 foreach ($delegate as $name => $value) {
                     if (is_numeric($name)) {
@@ -644,8 +644,8 @@ class Table
      */
     private function set_setters_and_getters()
     {
-        $getters = $this->class->getStaticPropertyValue('getters', array());
-        $setters = $this->class->getStaticPropertyValue('setters', array());
+        $getters = $this->class->getStaticPropertyValue('getters', []);
+        $setters = $this->class->getStaticPropertyValue('setters', []);
 
         if (!empty($getters) || !empty($setters)) {
             trigger_error('static::$getters and static::$setters are deprecated. Please define your setters and getters by declaring methods in your model prefixed with get_ or set_. See

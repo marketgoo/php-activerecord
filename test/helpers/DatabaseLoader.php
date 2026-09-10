@@ -7,7 +7,7 @@ use Exception;
 class DatabaseLoader
 {
     private $db;
-    static $instances = array();
+    public static $instances = [];
 
     public function __construct($db)
     {
@@ -61,7 +61,7 @@ class DatabaseLoader
 
     public function get_fixture_tables()
     {
-        $tables = array();
+        $tables = [];
 
         foreach (glob(__DIR__ . '/../fixtures/*.csv') as $file) {
             $info = pathinfo($file);
@@ -88,14 +88,14 @@ class DatabaseLoader
         $fields = fgetcsv($fp, escape: "");
 
         if (!empty($fields)) {
-            $markers = join(',', array_fill(0, count($fields), '?'));
+            $markers = implode(',', array_fill(0, count($fields), '?'));
             $table = $this->quote_name($table);
 
             foreach ($fields as &$name) {
                 $name = $this->quote_name(trim($name));
             }
 
-            $fields = join(',', $fields);
+            $fields = implode(',', $fields);
 
             while (($values = fgetcsv($fp, escape: ""))) {
                 $this->db->query("INSERT INTO $table($fields) VALUES($markers)", $values);

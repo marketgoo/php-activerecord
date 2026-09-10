@@ -6,8 +6,8 @@ use ActiveRecord\Model;
 
 class UserNewsletter extends Model
 {
-    static $belong_to = array(
-        array('user'),
-        array('newsletter'),
-    );
+    public static $belong_to = [
+        ['user'],
+        ['newsletter'],
+    ];
 }

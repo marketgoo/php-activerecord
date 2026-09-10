@@ -5,18 +5,18 @@ use TestHelpers\DatabaseTest;
 
 class BookPresence extends Model
 {
-    static $table_name = 'books';
+    public static $table_name = 'books';
 
-    static $validates_presence_of = [
+    public static $validates_presence_of = [
         ['name']
     ];
 }
 
 class AuthorPresence extends Model
 {
-    static $table_name = 'authors';
+    public static $table_name = 'authors';
 
-    static $validates_presence_of = [
+    public static $validates_presence_of = [
         ['some_date']
     ];
 }

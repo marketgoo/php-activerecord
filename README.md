@@ -64,11 +64,11 @@ ActiveRecord\Config::initialize(function($cfg)
 {
    $cfg->set_model_directory('/path/to/your/model_directory');
    $cfg->set_connections(
-     array(
+     [
        'development' => 'mysql://username:password@localhost/development_database_name',
        'test' => 'mysql://username:password@localhost/test_database_name',
        'production' => 'mysql://username:password@localhost/production_database_name'
-     )
+     ]
    );
 });
 ```
@@ -79,11 +79,11 @@ Alternatively (w/o the 5.3 closure):
 $cfg = ActiveRecord\Config::instance();
 $cfg->set_model_directory('/path/to/your/model_directory');
 $cfg->set_connections(
-  array(
+  [
     'development' => 'mysql://username:password@localhost/development_database_name',
     'test' => 'mysql://username:password@localhost/test_database_name',
     'production' => 'mysql://username:password@localhost/production_database_name'
-  )
+  ]
 );
 ```
 
@@ -121,7 +121,7 @@ $post = Post::find_by_name_and_id('The Bridge Builder',100);
 $post = Post::find_by_name_or_id('The Bridge Builder',100);
 
 # finding using a conditions array
-$posts = Post::find('all',array('conditions' => array('name=? or id > ?','The Bridge Builder',100)));
+$posts = Post::find('all',['conditions' => ['name=? or id > ?','The Bridge Builder',100]]);
 ```
 
 ### Create ###

@@ -24,9 +24,9 @@ use ActiveRecord\Exceptions\HasManyThroughAssociationException;
  * # Table: schools
  * # Primary key: id
  * class School extends ActiveRecord\Model {
- *   static $has_many = array(
- *     array('people')
- *   );
+ *   static $has_many = [
+ *     ['people']
+ *   ];
  * });
  * </code>
  *
@@ -34,19 +34,19 @@ use ActiveRecord\Exceptions\HasManyThroughAssociationException;
  *
  * <code>
  * class Payment extends ActiveRecord\Model {
- *   static $belongs_to = array(
- *     array('person'),
- *     array('order')
- *   );
+ *   static $belongs_to = [
+ *     ['person'],
+ *     ['order']
+ *   ];
  * }
  *
  * class Order extends ActiveRecord\Model {
- *   static $has_many = array(
- *     array('people',
+ *   static $has_many = [
+ *     ['people',
  *           'through'    => 'payments',
  *           'select'     => 'people.*, payments.amount',
- *           'conditions' => 'payments.amount < 200')
- *     );
+ *           'conditions' => 'payments.amount < 200']
+ *     ];
  * }
  * </code>
  *
@@ -69,7 +69,7 @@ class HasMany extends AbstractRelationship
      *
      * @var array
      */
-    protected static $valid_association_options = array('primary_key', 'order', 'group', 'having', 'limit', 'offset', 'through', 'source');
+    protected static $valid_association_options = ['primary_key', 'order', 'group', 'having', 'limit', 'offset', 'through', 'source'];
 
     protected $initialized;
     protected $primary_key;
@@ -83,7 +83,7 @@ class HasMany extends AbstractRelationship
      * @param array $options Options for the association
      * @return HasMany
      */
-    public function __construct($options = array())
+    public function __construct($options = [])
     {
         parent::__construct($options);
 
@@ -96,7 +96,7 @@ class HasMany extends AbstractRelationship
         }
 
         if (!$this->primary_key && isset($this->options['primary_key'])) {
-            $this->primary_key = is_array($this->options['primary_key']) ? $this->options['primary_key'] : array($this->options['primary_key']);
+            $this->primary_key = is_array($this->options['primary_key']) ? $this->options['primary_key'] : [$this->options['primary_key']];
         }
 
         if (!$this->class_name) {
@@ -108,7 +108,7 @@ class HasMany extends AbstractRelationship
     {
         //infer from class_name
         if (!$this->foreign_key || $override) {
-            $this->foreign_key = array(Inflector::instance()->keyify($model_class_name));
+            $this->foreign_key = [Inflector::instance()->keyify($model_class_name)];
         }
 
         if (!$this->primary_key || $override) {
@@ -175,9 +175,9 @@ class HasMany extends AbstractRelationship
         $this->set_keys($model);
         $primary_key = Inflector::instance()->variablize($this->foreign_key[0]);
 
-        return array(
+        return [
             $primary_key => $model->id,
-        );
+        ];
     }
 
     private function inject_foreign_key_for_new_association(Model $model, &$attributes)
@@ -191,7 +191,7 @@ class HasMany extends AbstractRelationship
         return $attributes;
     }
 
-    public function build_association(Model $model, $attributes = array(), $guard_attributes = true)
+    public function build_association(Model $model, $attributes = [], $guard_attributes = true)
     {
         $relationship_attributes = $this->get_foreign_key_for_new_association($model);
 
@@ -212,7 +212,7 @@ class HasMany extends AbstractRelationship
         return $record;
     }
 
-    public function create_association(Model $model, $attributes = array(), $guard_attributes = true)
+    public function create_association(Model $model, $attributes = [], $guard_attributes = true)
     {
         $relationship_attributes = $this->get_foreign_key_for_new_association($model);
 
@@ -236,7 +236,7 @@ class HasMany extends AbstractRelationship
         return $record;
     }
 
-    public function load_eagerly($models = array(), $attributes = array(), $includes = null, ?Table $table = null)
+    public function load_eagerly($models = [], $attributes = [], $includes = null, ?Table $table = null)
     {
         $this->set_keys($table->class->name);
         $this->query_and_attach_related_models_eagerly($table, $models, $attributes, $includes, $this->foreign_key, $table->pk);

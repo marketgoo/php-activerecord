@@ -209,18 +209,18 @@ class SQLBuilder
                 $parts[$i] .= ' DESC';
             }
         }
-        return join(',', $parts);
+        return implode(',', $parts);
     }
 
     /**
-     * Converts a string like "id_and_name_or_z" into a conditions value like array("id=? AND name=? OR z=?", values, ...).
+     * Converts a string like "id_and_name_or_z" into a conditions value like ["id=? AND name=? OR z=?", values, ...].
      *
      * @param Connection $connection
      * @param $name Underscored string
      * @param $values Array of values for the field names. This is used
      *   to determine what kind of bind marker to use: =?, IN(?), IS NULL
      * @param $map A hash of "mapped_column_name" => "real_column_name"
-     * @return A conditions array in the form array(sql_string, value1, value2,...)
+     * @return A conditions array in the form [sql_string, value1, value2,...]
      */
     public static function create_conditions_from_underscored_string(Connection $connection, $name, &$values = [], &$map = null)
     {
@@ -262,7 +262,7 @@ class SQLBuilder
      * @param string $name A string containing attribute names connected with _and_ or _or_
      * @param $args Array of values for each attribute in $name
      * @param $map A hash of "mapped_column_name" => "real_column_name"
-     * @return array A hash of array(name => value, ...)
+     * @return array A hash of [name => value, ...]
      */
     public static function create_hash_from_underscored_string($name, &$values = [], &$map = null)
     {
@@ -349,7 +349,7 @@ class SQLBuilder
 
     private function build_insert()
     {
-        $keys = join(',', $this->quoted_key_names());
+        $keys = implode(',', $this->quoted_key_names());
 
         if ($this->sequence) {
             $sql =
@@ -399,7 +399,7 @@ class SQLBuilder
         if (!is_null($this->update) && (strlen($this->update) > 0)) {
             $set = $this->update;
         } else {
-            $set = join('=?, ', $this->quoted_key_names()) . '=?';
+            $set = implode('=?, ', $this->quoted_key_names()) . '=?';
         }
 
         $sql = "UPDATE $this->table SET $set";

@@ -5,7 +5,7 @@ use TestHelpers\DatabaseTest;
 
 class BookExclusion extends Model
 {
-    static $table = 'books';
+    public static $table = 'books';
     public static $validates_exclusion_of = [
         ['name', 'in' => ['blah', 'alpha', 'bravo']]
     ];
@@ -13,7 +13,7 @@ class BookExclusion extends Model
 
 class BookInclusion extends Model
 {
-    static $table = 'books';
+    public static $table = 'books';
 
     public static $validates_inclusion_of = [
         ['name', 'in' => ['blah', 'tanker', 'shark']]

@@ -36,7 +36,7 @@ class SqliteAdapterTest extends AdapterTest
 
     public function test_limit_with_null_offset_does_not_contain_offset()
     {
-        $ret = array();
+        $ret = [];
         $sql = 'SELECT * FROM authors ORDER BY name ASC';
         $this->conn->query_and_fetch($this->conn->limit($sql, null, 1), function ($row) use (&$ret) {
             $ret[] = $row;

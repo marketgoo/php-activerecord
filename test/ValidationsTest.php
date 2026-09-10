@@ -6,11 +6,11 @@ use TestModels\Book;
 
 class BookValidations extends Model
 {
-    static $table_name = 'books';
-    static $alias_attribute = ['name_alias' => 'name', 'x' => 'secondary_author_id'];
-    static $validates_presence_of = [];
-    static $validates_uniqueness_of = [];
-    static $custom_validator_error_msg = 'failed custom validation';
+    public static $table_name = 'books';
+    public static $alias_attribute = ['name_alias' => 'name', 'x' => 'secondary_author_id'];
+    public static $validates_presence_of = [];
+    public static $validates_uniqueness_of = [];
+    public static $custom_validator_error_msg = 'failed custom validation';
 
     // fired for every validation - but only used for custom validation test
     public function validate()
@@ -23,8 +23,8 @@ class BookValidations extends Model
 
 class ValuestoreValidations extends Model
 {
-    static $table_name = 'valuestore';
-    static $validates_uniqueness_of = [];
+    public static $table_name = 'valuestore';
+    public static $validates_uniqueness_of = [];
 }
 
 class ValidationsTest extends DatabaseTest

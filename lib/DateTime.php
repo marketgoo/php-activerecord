@@ -45,7 +45,7 @@ class DateTime extends \DateTime implements DateTimeInterface
     /**
      * Pre-defined format strings.
      */
-    public static $FORMATS = array(
+    public static $FORMATS = [
         'db'      => 'Y-m-d H:i:s',
         'number'  => 'YmdHis',
         'time'    => 'H:i',
@@ -61,7 +61,7 @@ class DateTime extends \DateTime implements DateTimeInterface
         'rfc2822' => \DateTime::RFC2822,
         'rfc3339' => \DateTime::RFC3339,
         'rss'     => \DateTime::RSS,
-        'w3c'     => \DateTime::W3C);
+        'w3c'     => \DateTime::W3C];
 
     private $model;
     private $attribute_name;

@@ -6,8 +6,8 @@ use ActiveRecord\Model;
 
 class User extends Model
 {
-    static $has_many = array(
-        array('user_newsletters'),
-        array('newsletters', 'through' => 'user_newsletters')
-    );
+    public static $has_many = [
+        ['user_newsletters'],
+        ['newsletters', 'through' => 'user_newsletters']
+    ];
 }

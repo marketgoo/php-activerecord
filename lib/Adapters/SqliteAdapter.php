@@ -56,11 +56,11 @@ class SqliteAdapter extends Connection
         $c->pk              = $column['pk'] ? true : false;
         $c->auto_increment  = in_array(
             strtoupper($column['type']),
-            array('INT', 'INTEGER')
+            ['INT', 'INTEGER']
         ) && $c->pk;
 
         $column['type'] = preg_replace('/ +/', ' ', $column['type']);
-        $column['type'] = str_replace(array('(',')'), ' ', $column['type']);
+        $column['type'] = str_replace(['(',')'], ' ', $column['type']);
         $column['type'] = Utils::squeeze(' ', $column['type']);
         $matches = explode(' ', $column['type']);
 
