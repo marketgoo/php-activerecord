@@ -111,3 +111,10 @@ CREATE TABLE valuestore (
   `key` varchar(20) NOT NULL DEFAULT '',
   `value` varchar(255) NOT NULL DEFAULT ''
 ) ENGINE=InnoDB;
+CREATE TABLE documents (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(50),
+  payload JSON,
+  metadata JSON,
+  settings TEXT
+) ENGINE=InnoDB;

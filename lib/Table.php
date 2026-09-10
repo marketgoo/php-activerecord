@@ -100,6 +100,7 @@ class Table
         $this->reestablish_connection(false);
         $this->set_table_name();
         $this->get_meta_data();
+        $this->set_json_attributes();
         $this->set_primary_key();
         $this->set_sequence_name();
         $this->set_delegates();
@@ -484,12 +485,33 @@ class Table
                 } else {
                     $value = $this->conn->datetime_to_string($value);
                 }
+            } elseif ($value instanceof Json) {
+                $value = $value->to_json();
+            } elseif ((is_array($value) || is_object($value)) && isset($this->columns[$name]) && $this->columns[$name]->type == Column::JSON) {
+                // raw hashes passed straight to insert()/update() without going through a model
+                $value = Column::cast_json($value)->to_json();
             }
 
             $ret[$name] = $value;
         }
 
         return $ret;
+    }
+
+    /**
+     * Marks the columns listed in the model's $json_attributes as JSON so that text
+     * columns holding JSON documents get the same treatment as native JSON columns.
+     */
+    private function set_json_attributes()
+    {
+        foreach ((array)$this->class->getStaticPropertyValue('json_attributes', []) as $name) {
+            $column = $this->columns[$name] ?? $this->get_column_by_inflected_name($name);
+
+            if ($column && $column->type != Column::JSON) {
+                $column->type = Column::JSON;
+                $column->default = $column->cast_default($column->default, $this->conn);
+            }
+        }
     }
 
     private function set_primary_key()

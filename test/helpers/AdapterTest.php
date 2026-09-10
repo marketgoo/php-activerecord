@@ -104,6 +104,12 @@ class AdapterTest extends DatabaseTest
 
     public function test_connect_with_port()
     {
+        if ($this->conn->protocol == 'sqlite') {
+            // a file path has neither user nor port
+            $this->expectNotToPerformAssertions();
+            return;
+        }
+
         $config = Config::instance();
         $name = $config->get_default_connection();
         $url = parse_url($config->get_connection($name));
@@ -116,9 +122,7 @@ class AdapterTest extends DatabaseTest
         }
         $connection_string = "{$connection_string}@{$url['host']}:$port{$url['path']}";
 
-        if ($this->conn->protocol != 'sqlite') {
-            Connection::instance($connection_string);
-        }
+        Connection::instance($connection_string);
 
         $this->expectNotToPerformAssertions();
     }

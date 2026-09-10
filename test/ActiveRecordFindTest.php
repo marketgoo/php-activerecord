@@ -84,6 +84,13 @@ class ActiveRecordFindTest extends DatabaseTest
 
     public function test_find_all_with_empty_array_bind_value_throws_exception()
     {
+        if ($this->conn->protocol == 'sqlite') {
+            // SQLite treats the unbound marker as NULL, so IN(?) with no values
+            // is a valid query that matches nothing rather than an error.
+            $this->assertCount(0, Author::find('all', ['conditions' => ['author_id IN(?)', []]]));
+            return;
+        }
+
         $this->expectException(DatabaseException::class);
         $authors = Author::find('all', ['conditions' => ['author_id IN(?)', []]]);
         $this->assertCount(0, $authors);

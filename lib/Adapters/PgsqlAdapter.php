@@ -109,7 +109,7 @@ SQL;
             if (count($matches) == 2) {
                 $c->sequence = $matches[1];
             } else {
-                $c->default = $c->cast($column['default'], $this);
+                $c->default = $c->cast_default($column['default'], $this);
             }
         }
         return $c;

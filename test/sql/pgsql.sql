@@ -113,3 +113,11 @@ CREATE TABLE valuestore (
 
 -- reproduces issue GH-96 for testing
 CREATE INDEX user_newsletters_id_and_user_id_idx ON user_newsletters USING btree(id, user_id);
+
+CREATE TABLE documents (
+  id serial primary key,
+  title varchar(50),
+  payload jsonb,
+  metadata json DEFAULT '{}',
+  settings text
+);

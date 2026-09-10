@@ -21,6 +21,11 @@ use ActiveRecord\Exceptions\ActiveRecordException;
  */
 class SqliteAdapter extends Connection
 {
+    /**
+     * Whether this build accepts ORDER BY/LIMIT on UPDATE and DELETE; detected on first use.
+     */
+    private $update_delete_limit = null;
+
     protected function __construct($info)
     {
         if (!file_exists($info->host)) {
@@ -87,7 +92,7 @@ class SqliteAdapter extends Connection
             $c->length = 8;
         }
 
-        $c->default = $c->cast($column['dflt_value'], $this);
+        $c->default = $c->cast_default($column['dflt_value'], $this);
 
         return $c;
     }
@@ -97,9 +102,18 @@ class SqliteAdapter extends Connection
         throw new ActiveRecordException("SqliteAdapter::set_charset not supported.");
     }
 
+    /**
+     * SQLite only parses ORDER BY and LIMIT on UPDATE and DELETE when built with
+     * SQLITE_ENABLE_UPDATE_DELETE_LIMIT, which distributions differ on.
+     */
     public function accepts_limit_and_order_for_update_and_delete()
     {
-        return true;
+        if ($this->update_delete_limit === null) {
+            $options = $this->query('PRAGMA compile_options')->fetchAll(PDO::FETCH_COLUMN);
+            $this->update_delete_limit = in_array('ENABLE_UPDATE_DELETE_LIMIT', $options);
+        }
+
+        return $this->update_delete_limit;
     }
 
     public function native_database_types()

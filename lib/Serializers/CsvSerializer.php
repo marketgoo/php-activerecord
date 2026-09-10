@@ -39,6 +39,13 @@ class CsvSerializer extends Serialization
 
     private function to_csv($arr)
     {
+        // a CSV cell holds text, so JSON documents go in as JSON text
+        foreach ($arr as &$value) {
+            if (is_array($value) || is_object($value)) {
+                $value = json_encode($value);
+            }
+        }
+
         $outstream = fopen('php://temp', 'w');
         fputcsv($outstream, $arr, self::$delimiter, self::$enclosure, "");
         rewind($outstream);

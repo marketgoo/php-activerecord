@@ -59,6 +59,9 @@ class XmlSerializer extends Serialization
             }
 
             if (is_array($value) || is_object($value)) {
+                // objects (e.g. an empty JSON document) are written like hashes
+                $value = is_object($value) ? get_object_vars($value) : $value;
+
                 if (!is_int(key($value))) {
                     $this->writer->startElement(Utils::denamespace($attr));
                     $this->write($value);

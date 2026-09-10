@@ -164,6 +164,40 @@ $post->delete();
 echo $post->title; # 'New real title'
 ```
 
+## JSON columns ##
+
+Columns with a native JSON type (MySQL and MariaDB `JSON`, PostgreSQL `json` and `jsonb`,
+SQLite `JSON`) are detected automatically. Their attributes hold an `ActiveRecord\Json`
+document that behaves like an array and is encoded back to JSON text when the record is saved.
+Changes made through the array syntax, including nested ones, mark the attribute as dirty.
+
+```php
+$doc = Document::find(1);
+$doc->payload['theme'];              # 'dark'
+$doc->payload['tags'][] = 'php';     # nested change
+$doc->payload['nested']['count']++;  # also picked up
+$doc->save();
+# UPDATE `documents` SET payload='{"theme":"dark","tags":["php"],"nested":{"count":2}}' WHERE id=1
+
+$doc->payload = ['theme' => 'light'];        # arrays and objects are wrapped for you
+$doc->payload = '{"theme": "light"}';        # so is JSON text, as before
+$doc->payload->to_array();                   # ['theme' => 'light']
+echo $doc->payload;                          # {"theme":"light"}
+$doc->to_json();                             # nests the document instead of double-encoding it
+```
+
+Text columns that hold JSON can get the same treatment by listing them in the model:
+
+```php
+class Document extends ActiveRecord\Model
+{
+    static $json_attributes = ['settings'];
+}
+```
+
+Documents are decoded to associative arrays, so a nested empty object is written back as
+`[]`. Only the top-level `{}` is preserved.
+
 ## Contributing ##
 
 Please refer to [CONTRIBUTING.md](https://github.com/jpfuentes2/php-activerecord/blob/master/CONTRIBUTING.md) for information on how to contribute to PHP ActiveRecord.
