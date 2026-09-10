@@ -2,7 +2,13 @@ name: Tests
 
 on:
   push:
+    branches: [master]
   pull_request:
+
+# A newer push to the same branch or pull request cancels the run it supersedes.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   phpunit:
@@ -99,3 +105,21 @@ jobs:
           PHPAR_ADAPTER: ${{ matrix.adapter || 'mysql' }}
           PHPAR_MYSQL: mysql://test:test@127.0.0.1/test
           PHPAR_PGSQL: pgsql://test:test@127.0.0.1/test
+
+  phpcs:
+    name: Coding standard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Run phpcs
+        run: vendor/bin/phpcs

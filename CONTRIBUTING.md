@@ -63,4 +63,5 @@ You also need the PHP extensions `pdo_mysql`, `pdo_pgsql`, `pdo_sqlite` and `mem
 `.github/workflows/tests.yml` runs the suite on GitHub Actions against a small matrix: a baseline of
 PHP 8.4, MySQL 8.4 and PostgreSQL 18, plus one job per other supported version of each, changing a
 single axis at a time, and three MariaDB versions through the MySQL adapter. The PostgreSQL rows run
-the model-level tests with PostgreSQL as the default adapter. Update the matrix when a PHP or database version reaches end of life.
+the model-level tests with PostgreSQL as the default adapter. A separate job runs `vendor/bin/phpcs`, so a pull request that breaks the coding standard fails
+CI as well. Update the matrix when a PHP or database version reaches end of life.
