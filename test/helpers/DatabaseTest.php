@@ -35,6 +35,15 @@ class DatabaseTest extends SnakeCase_PHPUnit_Framework_TestCase
         if ($this->connection_name == 'sqlite' || $config->get_default_connection() == 'sqlite') {
             // need to create the db. the adapter specifically does not create it for us.
             static::$db = substr(Config::instance()->get_connection('sqlite'), 9);
+
+            if (!file_exists(static::$db)) {
+                // A previous test class deleted the file (SqliteAdapterTest does), so the
+                // cached connection points at a dead file and the loader still thinks the
+                // schema exists. Reconnect and rebuild from scratch.
+                ConnectionManager::drop_connection('sqlite');
+                DatabaseLoader::$instances['sqlite'] = 0;
+            }
+
             new SQLite3(static::$db);
         }
 

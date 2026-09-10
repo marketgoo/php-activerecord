@@ -20,6 +20,7 @@ class Column
     const DATETIME  = 4;
     const DATE      = 5;
     const TIME      = 6;
+    const JSON      = 7;
 
     /**
      * Map a type to an column type.
@@ -31,6 +32,9 @@ class Column
         'timestamp' => self::DATETIME,
         'date'      => self::DATE,
         'time'      => self::TIME,
+
+        'json'      => self::JSON,
+        'jsonb'     => self::JSON,
 
         'tinyint'   => self::INTEGER,
         'smallint'  => self::INTEGER,
@@ -180,8 +184,61 @@ class Column
                 }
 
                 return $connection->string_to_datetime($value);
+            case self::JSON:
+                return static::cast_json($value);
         }
         return $value;
+    }
+
+    /**
+     * Casts a column default as reported by the database.
+     *
+     * A JSON default that is not a document (an expression such as
+     * json_object(), or a MySQL 8 literal shown in its charset-prefixed form)
+     * becomes null rather than failing to load the table's metadata.
+     *
+     * @param mixed $value The default value reported by the adapter
+     * @param Connection $connection The Connection this column belongs to
+     * @return mixed type-casted default
+     */
+    public function cast_default($value, $connection)
+    {
+        if ($this->type == self::JSON && is_string($value)) {
+            // SQLite reports the default as written in the DDL, quotes included
+            $value = preg_replace("/^'(.*)'$/s", '$1', $value);
+
+            try {
+                return static::cast_json($value);
+            } catch (\JsonException $e) {
+                return null;
+            }
+        }
+
+        return $this->cast($value, $connection);
+    }
+
+    /**
+     * Casts a value to a {@link Json} document.
+     *
+     * Strings are parsed as JSON text, which keeps code that assigned
+     * json_encode()'d strings to these columns working. Arrays, scalars and
+     * objects (stdClass, JsonSerializable) are wrapped as they are.
+     *
+     * @param mixed $value The value to cast
+     * @return Json
+     * @throws \JsonException if $value is a string that is not valid JSON
+     */
+    public static function cast_json($value)
+    {
+        if ($value instanceof Json) {
+            return $value;
+        }
+
+        if (is_string($value)) {
+            return Json::decode($value);
+        }
+
+        return new Json($value);
     }
 
     /**

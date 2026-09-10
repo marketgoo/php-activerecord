@@ -349,13 +349,43 @@ abstract class Connection
         $sth->setFetchMode(PDO::FETCH_ASSOC);
 
         try {
-            if (!$sth->execute($values)) {
+            $this->bind_values($sth, $values);
+
+            if (!$sth->execute()) {
                 throw new DatabaseException($this);
             }
         } catch (PDOException $e) {
             throw new DatabaseException($e);
         }
         return $sth;
+    }
+
+    /**
+     * Binds the values with a PDO type matching the PHP type. Passing them to
+     * execute() binds everything as text, and SQLite does not convert text back
+     * to a number when the other side has no column affinity, so a condition
+     * such as "length(title) = ?" bound to 14 never matched there.
+     *
+     * @param \PDOStatement $sth Prepared statement
+     * @param array|null $values Positional (list) or named values
+     */
+    private function bind_values($sth, $values)
+    {
+        $position = 0;
+
+        foreach ((array)$values as $key => $value) {
+            $param = is_int($key) ? ++$position : $key;
+
+            if (is_int($value)) {
+                $type = PDO::PARAM_INT;
+            } elseif (is_null($value)) {
+                $type = PDO::PARAM_NULL;
+            } else {
+                $type = PDO::PARAM_STR;
+            }
+
+            $sth->bindValue($param, $value, $type);
+        }
     }
 
     /**

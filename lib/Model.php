@@ -156,6 +156,22 @@ class Model
     public static $sequence;
 
     /**
+     * Columns to treat as JSON documents even though the database reports them as
+     * text. Columns with a native JSON type (MySQL/MariaDB JSON, PostgreSQL json and
+     * jsonb, SQLite JSON) are detected automatically and need not be listed.
+     *
+     * <code>
+     * class Document extends ActiveRecord\Model {
+     *   static $json_attributes = ['settings'];
+     * }
+     * </code>
+     *
+     * @see Json
+     * @var array
+     */
+    public static $json_attributes = [];
+
+    /**
      * Set this to true in your subclass to use caching for this model.
      * Note that you must also configure a cache object.
      */
@@ -270,7 +286,15 @@ class Model
         // initialize attributes applying defaults
         if (!$instantiating_via_find) {
             foreach (static::table()->columns as $name => $meta) {
-                $this->attributes[$meta->inflected_name] = $meta->default;
+                $default = $meta->default;
+
+                // a JSON default is mutable, so each record needs its own copy
+                if ($default instanceof Json) {
+                    $default = clone $default;
+                    $default->attribute_of($this, $meta->inflected_name);
+                }
+
+                $this->attributes[$meta->inflected_name] = $default;
             }
         }
 
@@ -452,15 +476,25 @@ class Model
     public function assign_attribute($name, $value)
     {
         $table = static::table();
-        if (!is_object($value)) {
-            if (array_key_exists($name, $table->columns)) {
-                $value = $table->columns[$name]->cast($value, static::connection());
-            } else {
-                $col = $table->get_column_by_inflected_name($name);
-                if (!is_null($col)) {
-                    $value = $col->cast($value, static::connection());
-                }
+        if (array_key_exists($name, $table->columns)) {
+            $col = $table->columns[$name];
+        } else {
+            $col = $table->get_column_by_inflected_name($name);
+        }
+
+        // objects are left alone except for JSON columns, which wrap them in a Json document
+        if (!is_null($col) && (!is_object($value) || $col->type == Column::JSON)) {
+            $value = $col->cast($value, static::connection());
+        }
+
+        if ($value instanceof Json) {
+            // a document already held by another model or attribute is copied,
+            // so that changes flag the right owner as dirty
+            if ($value->is_attached() && !$value->is_attribute_of($this, $name)) {
+                $value = clone $value;
             }
+
+            $value->attribute_of($this, $name);
         }
 
         // convert php's \DateTime to ours
@@ -566,6 +600,8 @@ class Model
      */
     public function dirty_attributes()
     {
+        $this->flag_changed_json();
+
         if (!$this->__dirty) {
             return null;
         }
@@ -581,7 +617,21 @@ class Model
      */
     public function attribute_is_dirty($attribute)
     {
+        $this->flag_changed_json();
         return $this->__dirty && isset($this->__dirty[$attribute]) && array_key_exists($attribute, $this->attributes);
+    }
+
+    /**
+     * Flags JSON attributes whose documents were modified in place, e.g. through
+     * nested writes like $model->settings['a']['b'] = 1 that bypass assignment.
+     */
+    private function flag_changed_json()
+    {
+        foreach ($this->attributes as $name => $value) {
+            if ($value instanceof Json && $value->is_changed()) {
+                $this->flag_dirty($name);
+            }
+        }
     }
 
     /**
@@ -1119,6 +1169,7 @@ class Model
      */
     public function is_dirty()
     {
+        $this->flag_changed_json();
         return empty($this->__dirty) ? false : true;
     }
 
@@ -1312,6 +1363,12 @@ class Model
     public function reset_dirty()
     {
         $this->__dirty = null;
+
+        foreach ($this->attributes as $value) {
+            if ($value instanceof Json) {
+                $value->mark_clean();
+            }
+        }
     }
 
     /**

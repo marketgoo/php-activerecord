@@ -215,6 +215,9 @@ abstract class Serialization
         foreach ($this->attributes as &$value) {
             if ($value instanceof $date_class) {
                 $value = $value->format(self::$DATETIME_FORMAT);
+            } elseif ($value instanceof Json) {
+                // nest the document instead of double-encoding its text
+                $value = $value->jsonSerialize();
             }
         }
         return $this->attributes;

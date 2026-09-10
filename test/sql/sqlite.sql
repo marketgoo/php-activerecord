@@ -110,3 +110,11 @@ CREATE TABLE valuestore (
   `key` varchar(20) NOT NULL DEFAULT '',
   `value` varchar(255) NOT NULL DEFAULT ''
 );
+
+CREATE TABLE documents (
+  id INTEGER NOT NULL PRIMARY KEY,
+  title VARCHAR(50),
+  payload JSON,
+  metadata JSON DEFAULT '{}',
+  settings TEXT
+);
