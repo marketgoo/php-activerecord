@@ -185,6 +185,9 @@ abstract class Connection
      * sqlite://windows(c%2A/absolute/path/to/file.db)
      * </code>
      *
+     * Query string parameters: charset sets the connection encoding, decode=true
+     * url-decodes the credentials and any other parameter ends up in $info->options.
+     *
      * @param string $connection_url A connection URL
      * @return object the parsed URL as an object.
      */
@@ -241,12 +244,18 @@ abstract class Connection
             }
         }
 
-        if (isset($url['query'])) {
-            foreach (explode('/&/', $url['query']) as $pair) {
-                [$name, $value] = explode('=', $pair);
+        // Query string parameters other than charset and decode are left for
+        // the adapter, e.g. ClickHouse takes them as session settings.
+        $info->options = [];
 
+        if (isset($url['query'])) {
+            parse_str($url['query'], $params);
+
+            foreach ($params as $name => $value) {
                 if ($name == 'charset') {
                     $info->charset = $value;
+                } elseif ($name != 'decode') {
+                    $info->options[$name] = $value;
                 }
             }
         }
@@ -329,13 +338,7 @@ abstract class Connection
      */
     public function query($sql, &$values = [])
     {
-        if ($this->logging) {
-            $this->logger->log($sql);
-            if ($values) {
-                $this->logger->log($values);
-            }
-        }
-
+        $this->log_query($sql, $values);
         $this->last_query = $sql;
 
         try {
@@ -358,6 +361,22 @@ abstract class Connection
             throw new DatabaseException($e);
         }
         return $sth;
+    }
+
+    /**
+     * Sends a query and its bind values to the logger, when logging is on.
+     *
+     * @param string $sql
+     * @param array|null $values
+     */
+    protected function log_query($sql, $values = null)
+    {
+        if ($this->logging) {
+            $this->logger->log($sql);
+            if ($values) {
+                $this->logger->log($values);
+            }
+        }
     }
 
     /**
@@ -479,9 +498,10 @@ abstract class Connection
      *
      * @param string $table Name of a table
      * @param string $column_name Name of column sequence is for
+     * @param Column|null $column The column itself, when the table knows it
      * @return string sequence name or null if not supported.
      */
-    public function get_sequence_name($table, $column_name)
+    public function get_sequence_name($table, $column_name, $column = null)
     {
         return "{$table}_seq";
     }
@@ -495,6 +515,55 @@ abstract class Connection
     public function next_sequence_value($sequence_name)
     {
         return null;
+    }
+
+    /**
+     * Inserts rows that share the same columns with one multi-row INSERT.
+     *
+     * Used by Model::insert_all(), which has already split the rows into
+     * batches that fit max_bind_parameters().
+     *
+     * @param string $table Table name, quoted
+     * @param array $columns Column names, unquoted
+     * @param array $rows Lists of values in $columns order
+     * @param array|null $sequence [column, sequence name] to generate that column in every row
+     * @return mixed The statement
+     */
+    public function insert_rows($table, array $columns, array $rows, $sequence = null)
+    {
+        $names = array_map([$this, 'quote_name'], $columns);
+        $markers = array_fill(0, count($columns), '?');
+
+        if ($sequence) {
+            $names[] = $this->quote_name($sequence[0]);
+            $markers[] = $this->next_sequence_value($sequence[1]);
+        }
+
+        $tuple = '(' . implode(',', $markers) . ')';
+        $sql = "INSERT INTO $table(" . implode(',', $names) . ') VALUES' . implode(',', array_fill(0, count($rows), $tuple));
+        $values = $rows ? array_merge(...$rows) : [];
+
+        return $this->query($sql, $values);
+    }
+
+    /**
+     * Rows per INSERT statement in Model::insert_all() when the call does not
+     * set batch_size.
+     *
+     * @var int
+     */
+    public static $INSERT_BATCH_SIZE = 1000;
+
+    /**
+     * Most bound parameters one statement may carry. Model::insert_all() makes
+     * its batches smaller when rows times columns would go over it. PostgreSQL
+     * and MySQL accept 65535 and SQLite 32766 since 3.32.
+     *
+     * @return int
+     */
+    public function max_bind_parameters()
+    {
+        return 32766;
     }
 
     /**

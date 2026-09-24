@@ -116,6 +116,15 @@ class SqliteAdapter extends Connection
         return $this->update_delete_limit;
     }
 
+    /**
+     * SQLite before 3.32 accepts only 999 bound parameters per statement.
+     */
+    public function max_bind_parameters()
+    {
+        $version = $this->connection->getAttribute(PDO::ATTR_SERVER_VERSION);
+        return version_compare($version, '3.32.0', '>=') ? 32766 : 999;
+    }
+
     public function native_database_types()
     {
         return [

@@ -74,4 +74,19 @@ class ConnectionTest extends SnakeCase_PHPUnit_Framework_TestCase
         $info = Connection::parse_connection_url('mysql://test:test@127.0.0.1/test?charset=utf8');
         $this->assert_equals('utf8', $info->charset);
     }
+
+    public function test_query_string_options()
+    {
+        $info = Connection::parse_connection_url('clickhouse://u%40x:p@127.0.0.1/test?decode=true&charset=utf8&async_insert=0&max_threads=4');
+
+        $this->assert_equals('u@x', $info->user);
+        $this->assert_equals('utf8', $info->charset);
+        $this->assert_equals(['async_insert' => '0', 'max_threads' => '4'], $info->options);
+    }
+
+    public function test_no_query_string_options()
+    {
+        $info = Connection::parse_connection_url('mysql://test:test@127.0.0.1/test');
+        $this->assert_equals([], $info->options);
+    }
 }

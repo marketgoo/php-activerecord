@@ -32,12 +32,22 @@ if (getenv('LOG') !== 'false') {
 }
 
 ActiveRecord\Config::initialize(function ($cfg) {
+    $clickhouse = getenv('PHPAR_CLICKHOUSE') ?: 'clickhouse://test:test@127.0.0.1/test';
+
     $cfg->set_model_directory(realpath(__DIR__ . '/../models'));
     $cfg->set_model_namespace("TestModels");
     $cfg->set_connections([
         'mysql'  => getenv('PHPAR_MYSQL')  ?: 'mysql://test:test@127.0.0.1/test',
         'pgsql'  => getenv('PHPAR_PGSQL')  ?: 'pgsql://test:test@127.0.0.1/test',
-        'sqlite' => getenv('PHPAR_SQLITE') ?: 'sqlite://test.db']);
+        'sqlite' => getenv('PHPAR_SQLITE') ?: 'sqlite://test.db',
+        // ClickHouse with the adapter's defaults: deletes not waited for
+        'clickhouse' => $clickhouse,
+        // waiting for deletes too, for the tests that read their own writes
+        'clickhouse_sync' => $clickhouse . (strpos($clickhouse, '?') === false ? '?' : '&')
+            . 'lightweight_deletes_sync=2',
+        // with the server's async insert buffer
+        'clickhouse_async' => $clickhouse . (strpos($clickhouse, '?') === false ? '?' : '&')
+            . 'async_insert=1']);
 
     // Adapter the model-level tests run against: mysql (default), pgsql or sqlite.
     $cfg->set_default_connection(getenv('PHPAR_ADAPTER') ?: 'mysql');

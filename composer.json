@@ -8,6 +8,9 @@
     "require": {
         "php": ">=8.0.0"
     },
+    "suggest": {
+        "ext-curl": "Required by the ClickHouse adapter, which talks to the server over HTTP"
+    },
     "require-dev": {
         "squizlabs/php_codesniffer": "^4.0",
         "phpunit/phpunit": "^11.5"
