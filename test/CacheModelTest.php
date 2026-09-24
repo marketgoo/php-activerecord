@@ -28,9 +28,7 @@ class CacheModelTest extends DatabaseTest
     protected static function set_method_public($className, $methodName)
     {
         $class = new ReflectionClass($className);
-        $method = $class->getMethod($methodName);
-        $method->setAccessible(true);
-        return $method;
+        return $class->getMethod($methodName);
     }
 
     public function tearDown(): void
