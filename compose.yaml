@@ -1,9 +1,10 @@
 # Database servers for running the test suite locally, mirroring the versions
 # tested in .github/workflows/tests.yml. Start only what you need, e.g.:
 #
-#   docker compose up -d mysql84 pgsql18 memcached
+#   docker compose up -d mysql84 pgsql18 clickhouse268 memcached
 #   PHPAR_MYSQL=mysql://test:test@127.0.0.1:33084/test \
 #   PHPAR_PGSQL=pgsql://test:test@127.0.0.1:54318/test \
+#   PHPAR_CLICKHOUSE=clickhouse://test:test@127.0.0.1:18268/test \
 #   vendor/bin/phpunit
 #
 # The databases are throwaway, so they keep their data on tmpfs and skip
@@ -29,6 +30,16 @@ x-pgsql: &pgsql
   tmpfs:
     - /var/lib/postgresql
   command: -c fsync=off -c synchronous_commit=off -c full_page_writes=off
+
+x-clickhouse: &clickhouse
+  environment:
+    CLICKHOUSE_DB: test
+    CLICKHOUSE_USER: test
+    CLICKHOUSE_PASSWORD: test
+  tmpfs:
+    - /var/lib/clickhouse
+  ulimits:
+    nofile: { soft: 262144, hard: 262144 }
 
 services:
   mysql57:
@@ -69,6 +80,17 @@ services:
     <<: *pgsql
     image: postgres:18
     ports: ["127.0.0.1:54318:5432"]
+
+  # 25.9 is the oldest supported release (lightweight UPDATE on by default);
+  # 26.8 is the current LTS. The HTTP port follows the version.
+  clickhouse259:
+    <<: *clickhouse
+    image: clickhouse/clickhouse-server:25.9
+    ports: ["127.0.0.1:18259:8123"]
+  clickhouse268:
+    <<: *clickhouse
+    image: clickhouse/clickhouse-server:26.8
+    ports: ["127.0.0.1:18268:8123"]
 
   memcached:
     image: memcached:1.6-alpine

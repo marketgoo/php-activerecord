@@ -25,7 +25,7 @@ class PgsqlAdapter extends Connection
         return true;
     }
 
-    public function get_sequence_name($table, $column_name)
+    public function get_sequence_name($table, $column_name, $column = null)
     {
         return "{$table}_{$column_name}_seq";
     }

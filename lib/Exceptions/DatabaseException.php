@@ -17,7 +17,11 @@ use ActiveRecord\Connection;
  */
 class DatabaseException extends ActiveRecordException
 {
-    public function __construct($adapter_or_string_or_mystery)
+    /**
+     * @param mixed $adapter_or_string_or_mystery A Connection, a PDOStatement, an exception or a message
+     * @param int $code Error code for a plain message, such as a ClickHouse error code
+     */
+    public function __construct($adapter_or_string_or_mystery, $code = 0)
     {
         if ($adapter_or_string_or_mystery instanceof Connection) {
             parent::__construct(
@@ -30,7 +34,7 @@ class DatabaseException extends ActiveRecordException
                 intval($adapter_or_string_or_mystery->errorCode())
             );
         } else {
-            parent::__construct($adapter_or_string_or_mystery);
+            parent::__construct($adapter_or_string_or_mystery, $code);
         }
     }
 }

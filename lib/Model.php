@@ -653,7 +653,7 @@ class Model
     public function get_primary_key($first = false)
     {
         $pk = static::table()->pk;
-        return $first ? $pk[0] : $pk;
+        return $first ? ($pk[0] ?? null) : $pk;
     }
 
     /**
@@ -893,15 +893,12 @@ class Model
             $table->insert($attributes);
         }
 
-        // if we've got an autoincrementing/sequenced pk set it
-        // don't need this check until the day comes that we decide to support composite pks
-        // if (count($pk) == 1)
-        {
-            $column = $table->get_column_by_inflected_name($pk);
+        // if we've got an autoincrementing/sequenced pk set it; tables without
+        // a primary key (common in ClickHouse) have nothing to read back
+        $column = $pk ? $table->get_column_by_inflected_name($pk) : null;
 
-        if ($column->auto_increment || $use_sequence) {
+        if (($column && $column->auto_increment) || $use_sequence) {
             $this->attributes[$pk] = static::connection()->insert_id($table->sequence);
-        }
         }
 
         $this->__new_record = false;
@@ -960,6 +957,58 @@ class Model
     }
 
     /**
+     * Inserts many records at once, with multi-row INSERT statements.
+     *
+     * Much faster than calling create() in a loop, because it builds no models
+     * and sends one statement per batch: validations and callbacks do not run.
+     * Attribute names and aliases are resolved as in create(), dates and JSON
+     * values are converted, missing created_at/updated_at columns get the
+     * current time and a missing primary key is generated wherever save() would
+     * generate it (a sequence in PostgreSQL, a UUIDv7 in ClickHouse).
+     *
+     * <code>
+     * Event::insert_all([
+     *   ['site_id' => 1, 'name' => 'visit'],
+     *   ['site_id' => 2, 'name' => 'signup']
+     * ]);
+     *
+     * Event::insert_all($rows, ['batch_size' => 10000]);
+     * </code>
+     *
+     * Rows setting the same columns share statements, so rows need not all set
+     * the same attributes. Options:
+     *
+     * <ul>
+     * <li><b>batch_size:</b> Rows per INSERT statement. Defaults to the adapter's
+     * Connection::$INSERT_BATCH_SIZE (1000, 100000 for ClickHouse). Batches are
+     * made smaller when rows times columns would exceed the bound parameters the
+     * database accepts.</li>
+     * </ul>
+     *
+     * @param array $rows List of [attribute => value] hashes
+     * @param array $options Options, see above
+     * @return integer Number of rows sent to the database
+     */
+    public static function insert_all(array $rows, array $options = [])
+    {
+        if (($unknown = array_diff(array_keys($options), ['batch_size']))) {
+            throw new Exceptions\ActiveRecordException('Unknown key(s): ' . implode(', ', $unknown));
+        }
+
+        if (static::$alias_attribute) {
+            foreach ($rows as &$row) {
+                foreach (array_intersect_key(static::$alias_attribute, (array)$row) as $alias => $name) {
+                    $row[$name] = $row[$alias];
+                    unset($row[$alias]);
+                }
+            }
+            unset($row);
+        }
+
+        return static::table()->insert_all($rows, $options['batch_size'] ?? null);
+    }
+
+    /**
      * Deletes records matching conditions in $options
      *
      * Does not instantiate models and therefore does not invoke callbacks
@@ -990,8 +1039,11 @@ class Model
      * <li><b>order:</b> A SQL fragment for ordering such as: 'name asc', 'id desc, name asc' (MySQL & Sqlite only)</li>
      * </ul>
      *
+     * ClickHouse does not report how many rows a DELETE removed, so there this
+     * returns null.
+     *
      * @param array $options
-     * @return integer Number of rows affected
+     * @return integer|null Number of rows affected, null if the database cannot tell
      */
     public static function delete_all($options = [])
     {
@@ -1046,8 +1098,11 @@ class Model
      * <li><b>order:</b> A SQL fragment for ordering such as: 'name asc', 'id desc, name asc' (MySQL & Sqlite only)</li>
      * </ul>
      *
+     * ClickHouse does not report how many rows an UPDATE changed, so there this
+     * returns null.
+     *
      * @param array $options
-     * @return integer Number of rows affected
+     * @return integer|null Number of rows affected, null if the database cannot tell
      */
     public static function update_all($options = [])
     {

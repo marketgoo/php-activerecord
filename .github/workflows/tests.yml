@@ -12,12 +12,12 @@ concurrency:
 
 jobs:
   phpunit:
-    name: PHP ${{ matrix.php }} / ${{ matrix.mariadb && format('MariaDB {0}', matrix.mariadb) || format('MySQL {0}', matrix.mysql) }} / PostgreSQL ${{ matrix.pgsql }} / default ${{ matrix.adapter || 'mysql' }}
+    name: PHP ${{ matrix.php }} / ${{ matrix.mariadb && format('MariaDB {0}', matrix.mariadb) || format('MySQL {0}', matrix.mysql) }} / PostgreSQL ${{ matrix.pgsql }} / ClickHouse ${{ matrix.clickhouse || '26.8' }} / default ${{ matrix.adapter || 'mysql' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      # One baseline (PHP 8.4, MySQL 8.4, PostgreSQL 18); every other job
-      # changes exactly one axis so a failure points at a single variable.
+      # One baseline (PHP 8.4, MySQL 8.4, PostgreSQL 18, ClickHouse 26.8); every
+      # other job changes exactly one axis so a failure points at a single variable.
       # The model-level tests run against the default adapter (PHPAR_ADAPTER),
       # MySQL unless a row says otherwise; the adapter tests always cover all
       # three. SQLite is bundled with each PHP build and is exercised in every job.
@@ -36,6 +36,9 @@ jobs:
           - { php: '8.4', mysql: '8.4', pgsql: '14', adapter: pgsql }
           - { php: '8.4', mysql: '8.4', pgsql: '16', adapter: pgsql }
           - { php: '8.4', mysql: '8.4', pgsql: '18', adapter: pgsql }
+          # ClickHouse axis: 25.9 is the oldest supported release (the first with
+          # lightweight UPDATE on by default); the others run the current LTS
+          - { php: '8.4', mysql: '8.4', pgsql: '18', clickhouse: '25.9' }
           # PHP axis
           - { php: '8.2', mysql: '8.4', pgsql: '18' }
           - { php: '8.3', mysql: '8.4', pgsql: '18' }
@@ -81,6 +84,22 @@ jobs:
           --health-timeout 5s
           --health-retries 20
 
+      clickhouse:
+        image: clickhouse/clickhouse-server:${{ matrix.clickhouse || '26.8' }}
+        env:
+          CLICKHOUSE_DB: test
+          CLICKHOUSE_USER: test
+          CLICKHOUSE_PASSWORD: test
+        ports:
+          - 8123:8123
+        options: >-
+          --tmpfs /var/lib/clickhouse:rw
+          --ulimit nofile=262144:262144
+          --health-cmd "wget --spider -q http://127.0.0.1:8123/ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
       memcached:
         image: memcached:1.6-alpine
         ports:
@@ -93,7 +112,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: pdo_mysql, pdo_pgsql, pdo_sqlite, memcached
+          extensions: pdo_mysql, pdo_pgsql, pdo_sqlite, curl, memcached
           coverage: none
 
       - name: Install dependencies
@@ -105,6 +124,7 @@ jobs:
           PHPAR_ADAPTER: ${{ matrix.adapter || 'mysql' }}
           PHPAR_MYSQL: mysql://test:test@127.0.0.1/test
           PHPAR_PGSQL: pgsql://test:test@127.0.0.1/test
+          PHPAR_CLICKHOUSE: clickhouse://test:test@127.0.0.1/test
 
   phpcs:
     name: Coding standard
