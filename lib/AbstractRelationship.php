@@ -198,7 +198,8 @@ abstract class AbstractRelationship implements RelationshipInterface
         foreach ($models as $model) {
             $key_to_match = $model->$model_values_key;
 
-            if (isset($related_models_map[$key_to_match])) {
+            // A null key (e.g. a nullable foreign key) never has related rows.
+            if ($key_to_match !== null && isset($related_models_map[$key_to_match])) {
                 foreach ($related_models_map[$key_to_match] as $related) {
                     $hash = spl_object_hash($related);
 

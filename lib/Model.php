@@ -447,8 +447,8 @@ class Model
             return $this->assign_attribute($name, $value);
         }
 
-        if ($name == 'id') {
-            return $this->assign_attribute($this->get_primary_key(true), $value);
+        if ($name == 'id' && ($pk = $this->get_primary_key(true)) !== null) {
+            return $this->assign_attribute($pk, $value);
         }
 
         foreach (static::$delegate as &$item) {
@@ -554,8 +554,7 @@ class Model
             return $this->__relationships[$name];
         }
 
-        if ($name == 'id') {
-            $pk = $this->get_primary_key(true);
+        if ($name == 'id' && ($pk = $this->get_primary_key(true)) !== null) {
             if (isset($this->attributes[$pk])) {
                 return $this->attributes[$pk];
             }
@@ -1772,7 +1771,7 @@ class Model
 
         // A non-numeric value cannot match an integer key. MySQL silently coerces
         // it to 0; PostgreSQL rejects the bound value with a type error.
-        $pk_column = $table->columns[$table->pk[0]] ?? null;
+        $pk_column = $table->pk ? ($table->columns[$table->pk[0]] ?? null) : null;
         if ($pk_column && $pk_column->type == Column::INTEGER) {
             foreach ((array)$values as $value) {
                 if (!is_numeric($value)) {
@@ -1870,6 +1869,11 @@ class Model
     public static function pk_conditions($args)
     {
         $table = static::table();
+
+        if (!$table->pk) {
+            throw new Exceptions\ActiveRecordException("Cannot find by id, no primary key defined for: " . get_called_class());
+        }
+
         $ret = [$table->pk[0] => $args];
         return $ret;
     }

@@ -3,6 +3,7 @@
 use ActiveRecord\Uuid;
 use ActiveRecord\Exceptions\DatabaseException;
 use ActiveRecord\Exceptions\ActiveRecordException;
+use ActiveRecord\Exceptions\UndefinedPropertyException;
 use TestHelpers\ClickhouseTestCase;
 use TestModels\Clickhouse\Site;
 use TestModels\Clickhouse\Session;
@@ -123,6 +124,33 @@ class ClickhouseModelTest extends ClickhouseTestCase
 
         $this->expectException(ActiveRecordException::class);
         $metric->delete();
+    }
+
+    public function test_id_without_primary_key_is_undefined()
+    {
+        $metric = new DailyMetric();
+
+        try {
+            $metric->id;
+            $this->fail('reading id needs a primary key');
+        } catch (UndefinedPropertyException $e) {
+        }
+
+        $this->expectException(UndefinedPropertyException::class);
+        $metric->id = 1;
+    }
+
+    public function test_find_by_id_without_primary_key()
+    {
+        try {
+            DailyMetric::find(1);
+            $this->fail('finding by id needs a primary key');
+        } catch (ActiveRecordException $e) {
+            $this->assert_string_contains_string('no primary key', $e->getMessage());
+        }
+
+        $this->expectException(ActiveRecordException::class);
+        DailyMetric::exists(1);
     }
 
     public function test_literal_defaults()

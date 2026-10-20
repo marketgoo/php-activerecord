@@ -209,7 +209,11 @@ class Json implements ArrayAccess, IteratorAggregate, Countable, JsonSerializabl
             $this->value = (array)$this->value;
         }
 
-        if (!array_key_exists($offset, $this->value)) {
+        if ($offset === null) {
+            // $json[]['key'] = 1 appends a new element and writes into it
+            $this->value[] = null;
+            $offset = array_key_last($this->value);
+        } elseif (!array_key_exists($offset, $this->value)) {
             // A slot is needed for writes through the reference ($json['new']['deep'] = 1)
             // to land in the document. A plain read leaves it null and prune() removes it,
             // so reading a missing key does not change the document.

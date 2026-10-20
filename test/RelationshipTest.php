@@ -703,6 +703,17 @@ class RelationshipTest extends DatabaseTest
         $this->assert_sql_has("WHERE " . Venue::table()->column_name_for('id') . " IN(?,?)", Table::load('Venue')->last_sql);
     }
 
+    public function test_eager_loading_belongs_to_with_null_foreign_key()
+    {
+        $e1 = Event::create(['venue_id' => null, 'host_id' => 1, 'title' => 'blah', 'type' => 'Music']);
+        $e2 = Event::create(['venue_id' => 1, 'host_id' => 1, 'title' => 'blah2', 'type' => 'Music']);
+
+        $events = Event::find([$e1->id, $e2->id], ['include' => 'venue', 'order' => 'id']);
+
+        $this->assert_null($events[0]->venue);
+        $this->assert_equals(1, $events[1]->venue->id);
+    }
+
     public function test_eager_loading_clones_related_objects()
     {
         $events = Event::find([2, 3], ['include' => ['venue']]);
