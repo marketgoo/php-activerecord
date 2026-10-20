@@ -145,6 +145,13 @@ class JsonTest extends SnakeCase_PHPUnit_Framework_TestCase
         $this->assert_equals(['key' => 'value'], $json['new']['deep']);
     }
 
+    public function test_nested_write_into_appended_element()
+    {
+        $json = new Json([['a' => 1]]);
+        $json[]['a'] = 2;
+        $this->assert_equals('[{"a":1},{"a":2}]', $json->to_json());
+    }
+
     public function test_reading_a_missing_key_does_not_change_the_document()
     {
         $json = new Json(['a' => 1]);
